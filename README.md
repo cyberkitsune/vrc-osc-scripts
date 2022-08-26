@@ -51,3 +51,4 @@ The script should start listening to you right away and will send chatbox messag
 - [ ] Support non-default mic
 - [ ] Support VRC's chatbox rate-limit
 - [ ] Voice commands to potentiall pause / resume chatbox display?
+- [ ] Add gif of this in action to this README
