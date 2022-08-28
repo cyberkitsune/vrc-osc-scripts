@@ -44,11 +44,14 @@ python VRCSubs/vrcsubs.py
 
 The script should start listening to you right away and will send chatbox messages as you speak!
 
+### Config
+Some options can be configured in `VRCSubs/Config.yml` -- Just edit that file and check the comments to see what the options are!
+
 ### To-do
 - [ ] Make the hacky audio-chunking I use cut off words less
 - [ ] Consider alternative Speech-to-text API (The google one WILL rate limit me eventually...)
-- [ ] Communicate VRC mic mute status
+- [x] Communicate VRC mic mute status
 - [ ] Support non-default mic
 - [ ] Support VRC's chatbox rate-limit
-- [ ] Voice commands to potentiall pause / resume chatbox display?
+- [ ] Voice commands to potentially pause / resume chatbox display?
 - [ ] Add gif of this in action to this README
