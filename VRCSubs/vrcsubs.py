@@ -6,10 +6,38 @@ import speech_recognition as sr
 from speech_recognition import UnknownValueError, WaitTimeoutError
 import queue, threading, datetime
 from pythonosc import udp_client
+from pythonosc.dispatcher import Dispatcher
+from pythonosc.osc_server import BlockingOSCUDPServer
+
+config = {'FollowMicMute': True}
+state = {'selfMuted': False}
+state_lock = threading.Lock()
 
 r = sr.Recognizer()
 audio_queue = queue.Queue()
 
+'''
+STATE MANAGEMENT
+This should be thread safe
+'''
+def get_state(key):
+    global state, state_lock
+    state_lock.acquire()
+    result = None
+    if key in state:
+        result = state[key]
+    state_lock.release()
+    return result
+
+def set_state(key, value):
+    global state, state_lock
+    state_lock.acquire()
+    state[key] = value
+    state_lock.release()
+
+'''
+SOUND PROCESSING THREAD
+'''
 def process_sound():
     global audio_queue, r
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
@@ -47,14 +75,19 @@ def process_sound():
         client.send_message("/chatbox/input", [current_text, True])
         print(current_text)
 
+'''
+AUDIO COLLECTION THREAD
+'''
 def collect_audio():
     global audio_queue, r
     mic = sr.Microphone()
 
     print("Starting audio collection!")
-    
+
     with mic as source:
         while True:
+            if config["FollowMicMute"] and get_state("selfMuted"):
+                continue
             audio = None
             try:
                 audio = r.listen(source, phrase_time_limit=3, timeout=1)
@@ -64,14 +97,45 @@ def collect_audio():
             if audio is not None:
                 audio_queue.put(audio)
 
+'''
+OSC BLOCK
+TODO: This may should be bundled into a class
+'''
 
+def _osc_muteself(address, *args):
+    print("Mute state", args[0])
+    set_state("selfMuted", args[0])
+
+def _def_osc_dispatch(address, *args):
+    pass
+    #print(f"{address}: {args}")
+
+def process_osc():
+    print("Launching OSC server thread!")
+    dispatcher = Dispatcher()
+    dispatcher.set_default_handler(_def_osc_dispatch)
+    dispatcher.map("/avatar/parameters/MuteSelf", _osc_muteself)
+
+    server = BlockingOSCUDPServer(("127.0.0.1", 9001), dispatcher)
+    server.serve_forever()
+
+
+'''
+MAIN ROUTINE
+'''
 def main():
     pst = threading.Thread(target=process_sound)
     pst.start()
 
     cat = threading.Thread(target=collect_audio)
     cat.start()
+    
+    osc = threading.Thread(target=process_osc)
+    osc.start()
 
+    pst.join()
+    cat.join()
+    osc.join()
 
 if __name__ == "__main__":
     main()
