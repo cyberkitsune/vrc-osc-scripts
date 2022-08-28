@@ -2,12 +2,18 @@
 VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 (c) 2022 CyberKitsune & other contributors.
 """
+import queue, threading, datetime, os
 import speech_recognition as sr
 from speech_recognition import UnknownValueError, WaitTimeoutError
-import queue, threading, datetime
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
+from yaml import load, dump
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
 
 config = {'FollowMicMute': True}
 state = {'selfMuted': False}
@@ -79,7 +85,7 @@ def process_sound():
 AUDIO COLLECTION THREAD
 '''
 def collect_audio():
-    global audio_queue, r
+    global audio_queue, r, config
     mic = sr.Microphone()
 
     print("Starting audio collection!")
@@ -99,7 +105,7 @@ def collect_audio():
 
 '''
 OSC BLOCK
-TODO: This may should be bundled into a class
+TODO: This maybe should be bundled into a class
 '''
 
 def _osc_muteself(address, *args):
@@ -124,6 +130,15 @@ def process_osc():
 MAIN ROUTINE
 '''
 def main():
+    global config
+    # Load config
+    cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
+    if os.path.exists(cfgfile):
+        print("Loading config from ", cfgfile)
+        with open(cfgfile, 'r') as f:
+            config = load(f, Loader=Loader)
+
+    # Start threads
     pst = threading.Thread(target=process_sound)
     pst.start()
 
