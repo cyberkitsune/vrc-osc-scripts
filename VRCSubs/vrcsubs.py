@@ -47,13 +47,12 @@ def process_sound():
         client.send_message("/chatbox/input", [current_text, True])
         print(current_text)
 
-def main():
+def collect_audio():
     global audio_queue, r
     mic = sr.Microphone()
-    pst = threading.Thread(target=process_sound)
-    pst.start()
 
     print("Starting audio collection!")
+    
     with mic as source:
         while True:
             audio = None
@@ -64,6 +63,14 @@ def main():
 
             if audio is not None:
                 audio_queue.put(audio)
+
+
+def main():
+    pst = threading.Thread(target=process_sound)
+    pst.start()
+
+    cat = threading.Thread(target=collect_audio)
+    cat.start()
 
 
 if __name__ == "__main__":
