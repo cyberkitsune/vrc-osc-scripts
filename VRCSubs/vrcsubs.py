@@ -30,6 +30,10 @@ def process_sound():
             client.send_message("/chatbox/input", ["[Timeout Error]", True])
             print("Timeout Error when recognizing speech!")
             continue
+        except Exception as e:
+            print("Exception!", e)
+            client.send_message("/chatbox/typing", False)
+            continue
         
         time_now = datetime.datetime.now()
         difference = time_now - last_disp_time
