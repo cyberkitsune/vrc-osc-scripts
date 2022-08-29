@@ -2,6 +2,7 @@
 VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 (c) 2022 CyberKitsune & other contributors.
 """
+
 import queue, threading, datetime, os
 import speech_recognition as sr
 from speech_recognition import UnknownValueError, WaitTimeoutError
