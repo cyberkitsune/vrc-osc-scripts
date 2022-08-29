@@ -63,6 +63,8 @@ def get_td_string(td):
 def main():
     global cutlet_installed
     print("VRCNowPlaying is now running")
+    if not cutlet_installed:
+        print("Cutlet is not installed, Japanese characters will appear as \"?\" in VRChat")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     warnedMedia = False
