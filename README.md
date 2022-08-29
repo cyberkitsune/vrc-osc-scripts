@@ -31,7 +31,7 @@ Now, listen to some music and watch your chatbox!
 
 ### To-do
 - [ ] Support customizing output format via yml
-- [ ] Gif of this working
+- [x] ~~Gif of this working~~
 - [ ] Anything else?
 
 ## VRCSubs
@@ -64,8 +64,8 @@ Some options can be configured in `VRCSubs/Config.yml` -- Just edit that file an
 ### To-do
 - [ ] Make the hacky audio-chunking I use cut off words less
 - [ ] Consider alternative Speech-to-text API (The google one WILL rate limit me eventually...)
-- [x] Communicate VRC mic mute status
+- [x] ~Communicate VRC mic mute status~
 - [ ] Support non-default mic
 - [ ] Support VRC's chatbox rate-limit
 - [ ] Voice commands to potentially pause / resume chatbox display?
-- [ ] Add gif of this in action to this README
+- [x] ~~Add gif of this in action to this README~~
