@@ -5,12 +5,18 @@ All these scripts require python3 and use pip for dependency management unless o
 
 **Be sure to enable OSC in your VRChat radial menu before using these scripts!**
 
+If you don't have python installed already, get it [from here](https://www.python.org/ftp/python/3.10.6/python-3.10.6-amd64.exe) **and be sure to click "Add Python to environment variables"** in the installer (Under Customize Install -> Advanced Options)
+
 ## VRCNowplaying
 This script broadcasts what you're currently listening to your chatbox, grabbing the data from the Windows MediaManager API.
 
 ![VRCNowplaying in action!](https://raw.githubusercontent.com/cyberkitsune/vrc-osc-scripts/main/img/nowplaying.gif)
 
 ### Usage
+#### Auto
+If you're on windows, try double-clicking `RunVRCNowPlaying.bat` after installing python!
+
+#### Manual
 First, install deps:
 ```
 pip install -r VRCNowPlaying/Requirements.txt
@@ -34,6 +40,10 @@ This script attempts to auto-transcribe your microphone audio into chat bubbles 
 ![VRCSubs in action!](https://raw.githubusercontent.com/cyberkitsune/vrc-osc-scripts/main/img/subtitles.gif)
 
 ### Usage
+#### Auto
+If you're on windows, try double-clicking `RunVRCSubs.bat` after installing python!
+
+#### Manual
 First, install deps:
 ```
 pip install -r VRCSubs/Requirements.txt
