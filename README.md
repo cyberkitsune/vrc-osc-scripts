@@ -7,6 +7,7 @@ All these scripts require python3 and use pip for dependency management unless o
 
 ## VRCNowplaying
 This script broadcasts what you're currently listening to your chatbox, grabbing the data from the Windows MediaManager API.
+
 ![VRCNowplaying in action!](https://raw.githubusercontent.com/cyberkitsune/vrc-osc-scripts/main/img/nowplaying.gif)
 
 ### Usage
@@ -29,6 +30,7 @@ Now, listen to some music and watch your chatbox!
 
 ## VRCSubs
 This script attempts to auto-transcribe your microphone audio into chat bubbles using the Google Web Search Speech API (via the `SpeechRecognition` package) -- It's considered a prototype and has many issues, but is kinda neat!
+
 ![VRCSubs in action!](https://raw.githubusercontent.com/cyberkitsune/vrc-osc-scripts/main/img/subtitles.gif)
 
 ### Usage
