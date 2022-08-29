@@ -106,7 +106,6 @@ def collect_audio():
 OSC BLOCK
 TODO: This maybe should be bundled into a class
 '''
-
 def _osc_muteself(address, *args):
     print("Mute state", args[0])
     set_state("selfMuted", args[0])
