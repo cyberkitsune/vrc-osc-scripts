@@ -89,6 +89,8 @@ def collect_audio():
     global audio_queue, r, config
     mic = sr.Microphone()
     print("Starting audio collection!")
+    did = mic.get_pyaudio().PyAudio().get_default_input_device_info()
+    print("Using", did.get('name'), " as Microphone!")
     with mic as source:
         while True:
             if config["FollowMicMute"] and get_state("selfMuted"):
