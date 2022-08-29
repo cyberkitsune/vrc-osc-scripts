@@ -15,7 +15,7 @@ except ImportError:
     from yaml import Loader, Dumper
 
 
-config = {'FollowMicMute': True}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US"}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
@@ -45,7 +45,7 @@ def set_state(key, value):
 SOUND PROCESSING THREAD
 '''
 def process_sound():
-    global audio_queue, r
+    global audio_queue, r, config
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     current_text = ""
     last_disp_time = datetime.datetime.now()
@@ -55,7 +55,7 @@ def process_sound():
         text = None
         try:
             client.send_message("/chatbox/typing", True)
-            text = r.recognize_google(ai)
+            text = r.recognize_google(ai, language=config["CapturedLanguage"])
         except UnknownValueError:
             client.send_message("/chatbox/typing", False)
             continue
@@ -87,9 +87,7 @@ AUDIO COLLECTION THREAD
 def collect_audio():
     global audio_queue, r, config
     mic = sr.Microphone()
-
     print("Starting audio collection!")
-
     with mic as source:
         while True:
             if config["FollowMicMute"] and get_state("selfMuted"):
