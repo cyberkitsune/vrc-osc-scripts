@@ -13,7 +13,7 @@ This script broadcasts what you're currently listening to your chatbox, grabbing
 ### Usage
 First, install deps:
 ```
-pip install -r VRCSubs/Requirements.txt
+pip install -r VRCNowPlaying/Requirements.txt
 ```
 
 Then, just run the Script
