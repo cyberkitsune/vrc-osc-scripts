@@ -7,15 +7,23 @@ from datetime import timedelta
 import time
 from pythonosc import udp_client
 import asyncio
-import cutlet
+
+cutlet_installed = True
+try:
+    import cutlet
+except ModuleNotFoundError as err:
+    cutlet_installed = False
 
 from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionManager as MediaManager
 from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionPlaybackStatus
 
-katsu = cutlet.Cutlet()
-katsu.use_foreign_spelling = False
+katsu = None
+
+if cutlet_installed:
+    katsu = cutlet.Cutlet()
+    katsu.use_foreign_spelling = False
 
 async def get_media_info():
     sessions = await MediaManager.request_async()
@@ -53,6 +61,8 @@ def get_td_string(td):
     return '%i:%02i' % (minutes, seconds)
 
 def main():
+    global cutlet_installed
+    print("VRCNowPlaying is now running")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     warnedMedia = False
@@ -68,10 +78,10 @@ def main():
         warnedMedia = False
 
         song_artist, song_title = (current_media_info['artist'], current_media_info['title'])
-        if not song_artist.isascii():
+        if not song_artist.isascii() and cutlet_installed:
             song_artist = katsu.romaji(song_artist)
 
-        if not song_title.isascii():
+        if not song_title.isascii() and cutlet_installed:
             song_title = katsu.romaji(song_title)
 
         posstr = ""
@@ -81,7 +91,7 @@ def main():
 
         current_song_string = "( NP: %s - %s%s )" % (song_artist, song_title, posstr)
 
-        if not current_song_string.isascii():
+        if not current_song_string.isascii() and cutlet_installed:
             current_song_string = katsu.romaji(current_song_string)
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144]
