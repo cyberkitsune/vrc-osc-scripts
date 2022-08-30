@@ -25,6 +25,11 @@ if cutlet_installed:
     katsu = cutlet.Cutlet()
     katsu.use_foreign_spelling = False
 
+
+config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )"}
+
+last_displayed_song = ("","")
+
 async def get_media_info():
     sessions = await MediaManager.request_async()
 
@@ -64,7 +69,7 @@ def main():
     global cutlet_installed
     print("VRCNowPlaying is now running")
     if not cutlet_installed:
-        print("Cutlet is not installed, Japanese characters will appear as \"?\" in VRChat")
+        print("[VRCNowPlaying] Cutlet is not installed, Japanese characters will appear as \"?\" in VRChat")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     warnedMedia = False
@@ -86,24 +91,27 @@ def main():
         if not song_title.isascii() and cutlet_installed:
             song_title = katsu.romaji(song_title)
 
-        posstr = ""
+        song_position = ""
 
         if 'pos' in current_media_info:
-            posstr = " <%s / %s>" % (get_td_string(current_media_info['pos']), get_td_string(current_media_info['end']))
+            song_position = " <%s / %s>" % (get_td_string(current_media_info['pos']), get_td_string(current_media_info['end']))
 
-        current_song_string = "( NP: %s - %s%s )" % (song_artist, song_title, posstr)
+        current_song_string = config['DisplayFormat'].format(song_artist=song_artist, song_title=song_title, song_position=song_position)
 
         if not current_song_string.isascii() and cutlet_installed:
             current_song_string = katsu.romaji(current_song_string)
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144]
         if current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
-            #print(current_song_string)
+            if last_displayed_song != (song_artist, song_title):
+                last_displayed_song = (song_artist, song_title)
+                print("[VRCNowPlaying]", current_song_string.encode('ascii', errors="replace").decode())
             client.send_message("/chatbox/input", [current_song_string.encode('ascii', errors="replace").decode(), True])
             lastPaused = False
         elif current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED and not lastPaused:
-            client.send_message("/chatbox/input", ["( Playback Paused )", True])
-            #print("( Playback Paused )")
+            client.send_message("/chatbox/input", [config['PausedFormat'], True])
+            print("[VRCNowPlaying]", config['PausedFormat'])
+            last_displayed_song = ("", "")
             lastPaused = True
         time.sleep(1.5) # 1.5 sec delay to update with no flashing
 
