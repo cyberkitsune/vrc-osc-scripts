@@ -4,9 +4,15 @@ VRCNowPlaying - Show what you're listening to in your chatbox!
 """
 
 from datetime import timedelta
-import time
+import time, os
 from pythonosc import udp_client
 import asyncio
+
+from yaml import load
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 cutlet_installed = True
 try:
@@ -66,8 +72,15 @@ def get_td_string(td):
     return '%i:%02i' % (minutes, seconds)
 
 def main():
-    global cutlet_installed
-    print("VRCNowPlaying is now running")
+    global cutlet_installed, config, last_displayed_song
+    # Load config
+    cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
+    if os.path.exists(cfgfile):
+        print("[VRCSubs] Loading config from", cfgfile)
+        with open(cfgfile, 'r') as f:
+            config = load(f, Loader=Loader)
+
+    print("[VRCNowPlaying] VRCNowPlaying is now running")
     if not cutlet_installed:
         print("[VRCNowPlaying] Cutlet is not installed, Japanese characters will appear as \"?\" in VRChat")
     lastPaused = False

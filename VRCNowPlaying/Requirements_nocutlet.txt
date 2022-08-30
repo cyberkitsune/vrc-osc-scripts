@@ -1,3 +1,4 @@
 python-osc
 asyncio
 winsdk
+pyyaml

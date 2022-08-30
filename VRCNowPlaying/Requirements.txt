@@ -3,3 +3,4 @@ asyncio
 cutlet
 unidic-lite
 winsdk
+pyyaml
