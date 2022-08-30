@@ -50,7 +50,7 @@ def process_sound():
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     current_text = ""
     last_disp_time = datetime.datetime.now()
-    print("Starting audio processing!")
+    print("[ProcessThread] Starting audio processing!")
     while True:
         ai = audio_queue.get()
         text = None
@@ -63,10 +63,10 @@ def process_sound():
         except TimeoutError:
             client.send_message("/chatbox/typing", False)
             client.send_message("/chatbox/input", ["[Timeout Error]", True])
-            print("Timeout Error when recognizing speech!")
+            print("[ProcessThread] Timeout Error when recognizing speech!")
             continue
         except Exception as e:
-            print("Exception!", e)
+            print("[ProcessThread] Exception!", e)
             client.send_message("/chatbox/typing", False)
             continue
         
@@ -88,9 +88,9 @@ AUDIO COLLECTION THREAD
 def collect_audio():
     global audio_queue, r, config
     mic = sr.Microphone()
-    print("Starting audio collection!")
+    print("[AudioThread] Starting audio collection!")
     did = mic.get_pyaudio().PyAudio().get_default_input_device_info()
-    print("Using", did.get('name'), " as Microphone!")
+    print("[AudioThread] Using", did.get('name'), "as Microphone!")
     with mic as source:
         while True:
             if config["FollowMicMute"] and get_state("selfMuted"):
@@ -134,7 +134,7 @@ def main():
     # Load config
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
-        print("Loading config from ", cfgfile)
+        print("[VRCSubs] Loading config from", cfgfile)
         with open(cfgfile, 'r') as f:
             config = load(f, Loader=Loader)
 
