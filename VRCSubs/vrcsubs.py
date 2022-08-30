@@ -54,6 +54,8 @@ def process_sound():
     while True:
         ai = audio_queue.get()
         text = None
+        if config["FollowMicMute"] and get_state("selfMuted"):
+            continue
         try:
             client.send_message("/chatbox/typing", True)
             text = r.recognize_google(ai, language=config["CapturedLanguage"])
@@ -93,8 +95,6 @@ def collect_audio():
     print("[AudioThread] Using", did.get('name'), "as Microphone!")
     with mic as source:
         while True:
-            if config["FollowMicMute"] and get_state("selfMuted"):
-                continue
             audio = None
             try:
                 audio = r.listen(source, phrase_time_limit=3, timeout=1)
