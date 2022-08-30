@@ -108,22 +108,33 @@ def collect_audio():
 OSC BLOCK
 TODO: This maybe should be bundled into a class
 '''
-def _osc_muteself(address, *args):
-    print("Mute state", args[0])
-    set_state("selfMuted", args[0])
+class OSCServer():
+    def __init__(self):
+        self.dispatcher = Dispatcher()
+        self.dispatcher.set_default_handler(self._def_osc_dispatch)
+        self.dispatcher.map("/avatar/parameters/MuteSelf", self._osc_muteself)
 
-def _def_osc_dispatch(address, *args):
-    pass
-    #print(f"{address}: {args}")
+        self.server = BlockingOSCUDPServer(("127.0.0.1", 9001), self.dispatcher)
+        self.server_thread = threading.Thread(target=self._process_osc)
 
-def process_osc():
-    print("Launching OSC server thread!")
-    dispatcher = Dispatcher()
-    dispatcher.set_default_handler(_def_osc_dispatch)
-    dispatcher.map("/avatar/parameters/MuteSelf", _osc_muteself)
+    def launch(self):
+        self.server_thread.start()
 
-    server = BlockingOSCUDPServer(("127.0.0.1", 9001), dispatcher)
-    server.serve_forever()
+    def shutdown(self):
+        self.server.shutdown()
+        self.server_thread.join()
+
+    def _osc_muteself(self, address, *args):
+        print("[OSCThread] Mute is now", args[0])
+        set_state("selfMuted", args[0])
+
+    def _def_osc_dispatch(self, address, *args):
+        pass
+        #print(f"{address}: {args}")
+
+    def _process_osc(self):
+        print("[OSCThread] Launching OSC server thread!")
+        self.server.serve_forever()
 
 
 '''
@@ -145,12 +156,19 @@ def main():
     cat = threading.Thread(target=collect_audio)
     cat.start()
     
-    osc = threading.Thread(target=process_osc)
-    osc.start()
+    osc = None
+    if config['FollowMicMute']:
+        print("[VRCSubs] FollowMicMute is enabled in the config, speech recognition will pause when your mic is muted ingame!")
+        osc = OSCServer()
+        osc.launch()
+    else:
+        print("[VRCSubs] FollowMicMute is NOT enabled in the config, speech recognition will work even while muted ingame!")
 
     pst.join()
     cat.join()
-    osc.join()
+    
+    if osc is not None:
+        osc.shutdown()
 
 if __name__ == "__main__":
     main()
