@@ -82,7 +82,7 @@ def process_sound():
         last_disp_time = datetime.datetime.now()
         client.send_message("/chatbox/typing", False)
         client.send_message("/chatbox/input", [current_text, True])
-        print(current_text)
+        print("[ProcessThread] Recognized:",current_text)
 
 '''
 AUDIO COLLECTION THREAD
