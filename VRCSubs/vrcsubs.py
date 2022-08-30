@@ -64,7 +64,6 @@ def process_sound():
             continue
         except TimeoutError:
             client.send_message("/chatbox/typing", False)
-            client.send_message("/chatbox/input", ["[Timeout Error]", True])
             print("[ProcessThread] Timeout Error when recognizing speech!")
             continue
         except Exception as e:
