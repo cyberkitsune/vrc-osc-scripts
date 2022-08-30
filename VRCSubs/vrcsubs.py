@@ -9,11 +9,11 @@ from speech_recognition import UnknownValueError, WaitTimeoutError
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
-from yaml import load, dump
+from yaml import load
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Loader
 
 
 config = {'FollowMicMute': True, 'CapturedLanguage': "en-US"}
