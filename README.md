@@ -66,7 +66,7 @@ python VRCNowPlaying/vrcnowplaying.py
 Now, listen to some music and watch your chatbox!
 
 ### To-do
-- [ ] Support customizing output format via yml
+- [x] ~~Support customizing output format via yml~~
 - [x] ~~Gif of this working~~
 - [ ] Anything else?
 
