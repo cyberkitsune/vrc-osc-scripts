@@ -65,6 +65,9 @@ python VRCNowPlaying/vrcnowplaying.py
 
 Now, listen to some music and watch your chatbox!
 
+### Config
+Some options can be configured in `VRCNowPlaying/Config.yml` -- Just edit that file and check the comments to see what the options are!
+
 ### To-do
 - [x] ~~Support customizing output format via yml~~
 - [x] ~~Gif of this working~~
