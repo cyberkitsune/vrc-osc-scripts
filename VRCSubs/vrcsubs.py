@@ -3,7 +3,7 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 (c) 2022 CyberKitsune & other contributors.
 """
 
-import queue, threading, datetime, os
+import queue, threading, datetime, os, time
 import speech_recognition as sr
 from speech_recognition import UnknownValueError, WaitTimeoutError
 from pythonosc import udp_client
@@ -78,6 +78,12 @@ def process_sound():
             current_text = current_text + " " + text
         else:
             current_text = text
+
+        diff_in_milliseconds = difference.total_seconds() * 1000
+        if diff_in_milliseconds < 1500:
+            ms_to_sleep = 1500 - diff_in_milliseconds
+            print("[ProcessThread] Sending too many messages! Delaying by", (ms_to_sleep / 1000.0), "sec to not hit rate limit!")
+            time.sleep(ms_to_sleep / 1000.0)
 
         last_disp_time = datetime.datetime.now()
         client.send_message("/chatbox/typing", False)
