@@ -7,6 +7,8 @@ All these scripts require python3 and use pip for dependency management unless o
 
 If you don't have python installed already, and you are running Windows, get it [from here](https://www.python.org/ftp/python/3.10.6/python-3.10.6-amd64.exe) **and be sure to click "Add Python to environment variables"** in the installer (Under Customize Install -> Advanced Options)
 
+If you want a quick video tutorial on how to use these scripts, check this [video I made](https://www.youtube.com/watch?v=y9XOGtOaIV8)!
+
 ## VRCSubs
 This script attempts to auto-transcribe your microphone audio into chat bubbles using the Google Web Search Speech API (via the `SpeechRecognition` package) -- It's considered a prototype and has many issues, but is kinda neat!
 
