@@ -111,7 +111,7 @@ def collect_audio():
         while True:
             audio = None
             try:
-                audio = r.listen(source, phrase_time_limit=2, timeout=0.3)
+                audio = r.listen(source, phrase_time_limit=1, timeout=0.3)
             except WaitTimeoutError:
                 if audio_buf is not None:
                     audio_queue.put((audio_buf, True))
