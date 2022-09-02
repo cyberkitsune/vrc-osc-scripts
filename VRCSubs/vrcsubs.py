@@ -5,7 +5,7 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 
 import queue, threading, datetime, os, time
 import speech_recognition as sr
-from speech_recognition import UnknownValueError, WaitTimeoutError
+from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
@@ -49,34 +49,38 @@ def process_sound():
     global audio_queue, r, config
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     current_text = ""
+    last_text = ""
     last_disp_time = datetime.datetime.now()
     print("[ProcessThread] Starting audio processing!")
     while True:
-        ai = audio_queue.get()
+        ad, final = audio_queue.get()
+        client.send_message("/chatbox/typing", (not final))
         text = None
         if config["FollowMicMute"] and get_state("selfMuted"):
             continue
         try:
-            client.send_message("/chatbox/typing", True)
-            text = r.recognize_google(ai, language=config["CapturedLanguage"])
+            #client.send_message("/chatbox/typing", True)
+            text = r.recognize_google(ad, language=config["CapturedLanguage"])
         except UnknownValueError:
-            client.send_message("/chatbox/typing", False)
+            #client.send_message("/chatbox/typing", False)
             continue
         except TimeoutError:
-            client.send_message("/chatbox/typing", False)
+            #client.send_message("/chatbox/typing", False)
             print("[ProcessThread] Timeout Error when recognizing speech!")
             continue
         except Exception as e:
             print("[ProcessThread] Exception!", e)
-            client.send_message("/chatbox/typing", False)
+            #client.send_message("/chatbox/typing", False)
             continue
-        
+
         time_now = datetime.datetime.now()
         difference = time_now - last_disp_time
-        if difference.seconds < 3:
-            current_text = current_text + " " + text
-        else:
-            current_text = text
+        current_text = text
+
+        if last_text == current_text:
+            continue
+
+        last_text = current_text
 
         diff_in_milliseconds = difference.total_seconds() * 1000
         if diff_in_milliseconds < 1500:
@@ -84,8 +88,11 @@ def process_sound():
             print("[ProcessThread] Sending too many messages! Delaying by", (ms_to_sleep / 1000.0), "sec to not hit rate limit!")
             time.sleep(ms_to_sleep / 1000.0)
 
+        if len(current_text) > 144:
+            print("[ProcessThread] oops, we're too long!")
+
         last_disp_time = datetime.datetime.now()
-        client.send_message("/chatbox/typing", False)
+        
         client.send_message("/chatbox/input", [current_text, True])
         print("[ProcessThread] Recognized:",current_text)
 
@@ -99,15 +106,23 @@ def collect_audio():
     did = mic.get_pyaudio().PyAudio().get_default_input_device_info()
     print("[AudioThread] Using", did.get('name'), "as Microphone!")
     with mic as source:
+        audio_buf = None
         while True:
             audio = None
             try:
-                audio = r.listen(source, phrase_time_limit=3, timeout=1)
+                audio = r.listen(source, phrase_time_limit=2, timeout=0.3)
             except WaitTimeoutError:
+                if audio_buf is not None:
+                    audio_queue.put((audio_buf, True))
+                    audio_buf = None
                 continue
 
             if audio is not None:
-                audio_queue.put(audio)
+                if audio_buf is None:
+                    audio_buf = audio
+                else:
+                    audio_buf = AudioData(audio_buf.frame_data + audio.frame_data, audio.sample_rate, audio.sample_width)
+                audio_queue.put((audio_buf, False))
 
 '''
 OSC BLOCK
