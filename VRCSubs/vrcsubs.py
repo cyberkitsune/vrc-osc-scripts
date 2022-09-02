@@ -3,7 +3,7 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 (c) 2022 CyberKitsune & other contributors.
 """
 
-import queue, threading, datetime, os, time
+import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
@@ -15,6 +15,7 @@ try:
 except ImportError:
     from yaml import Loader
 
+# I am typing enough characters that it should be truncated I GUESS I mean like 144 is great and all but who's afraid of the 138, trance music is really funny haha lmao
 
 config = {'FollowMicMute': True, 'CapturedLanguage': "en-US"}
 state = {'selfMuted': False}
@@ -89,7 +90,7 @@ def process_sound():
             time.sleep(ms_to_sleep / 1000.0)
 
         if len(current_text) > 144:
-            print("[ProcessThread] oops, we're too long!")
+            current_text = textwrap.wrap(current_text, width=144)[-1]
 
         last_disp_time = datetime.datetime.now()
         
