@@ -15,7 +15,6 @@ try:
 except ImportError:
     from yaml import Loader
 
-# I am typing enough characters that it should be truncated I GUESS I mean like 144 is great and all but who's afraid of the 138, trance music is really funny haha lmao
 
 config = {'FollowMicMute': True, 'CapturedLanguage': "en-US"}
 state = {'selfMuted': False}
