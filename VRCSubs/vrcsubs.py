@@ -56,6 +56,12 @@ def process_sound():
         ad, final = audio_queue.get()
         client.send_message("/chatbox/typing", (not final))
         text = None
+        
+        time_now = datetime.datetime.now()
+        difference = time_now - last_disp_time
+        if difference.total_seconds() < 1 and not final:
+            continue
+        
         if config["FollowMicMute"] and get_state("selfMuted"):
             continue
         try:
@@ -73,8 +79,6 @@ def process_sound():
             #client.send_message("/chatbox/typing", False)
             continue
 
-        time_now = datetime.datetime.now()
-        difference = time_now - last_disp_time
         current_text = text
 
         if last_text == current_text:
@@ -107,22 +111,31 @@ def collect_audio():
     print("[AudioThread] Using", did.get('name'), "as Microphone!")
     with mic as source:
         audio_buf = None
+        buf_size = 0
         while True:
             audio = None
             try:
-                audio = r.listen(source, phrase_time_limit=1, timeout=0.3)
+                audio = r.listen(source, phrase_time_limit=1, timeout=0.1)
             except WaitTimeoutError:
                 if audio_buf is not None:
                     audio_queue.put((audio_buf, True))
                     audio_buf = None
+                    buf_size = 0
                 continue
 
             if audio is not None:
                 if audio_buf is None:
                     audio_buf = audio
                 else:
-                    audio_buf = AudioData(audio_buf.frame_data + audio.frame_data, audio.sample_rate, audio.sample_width)
+                    buf_size += 1
+                    if buf_size > 10:
+                        audio_buf = audio
+                        buf_size = 0
+                    else:
+                        audio_buf = AudioData(audio_buf.frame_data + audio.frame_data, audio.sample_rate, audio.sample_width)
+                    
                 audio_queue.put((audio_buf, False))
+                   
 
 '''
 OSC BLOCK
