@@ -1,5 +1,5 @@
 # Set this to true in order to pause the subtitling when your in-game microphone is muted
 FollowMicMute: false
 
-# Change this to your language if you don't want to speak english
+# Change this to your language if you don't want to speak English. Uses ISO language codes (see http://www.lingoes.net/en/translator/langcode.htm), e.g. en-US, fr-FR, uk-UA
 CapturedLanguage: "en-US"

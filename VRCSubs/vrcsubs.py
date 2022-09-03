@@ -5,6 +5,7 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 
 import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
+import cyrtranslit
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
@@ -96,7 +97,13 @@ def process_sound():
             current_text = textwrap.wrap(current_text, width=144)[-1]
 
         last_disp_time = datetime.datetime.now()
-        
+        if config["CapturedLanguage"] == "ru-RU":
+            current_text = cyrtranslit.to_latin(current_text, "ru")
+        elif config["CapturedLanguage"] == "uk-UA":
+            current_text = cyrtranslit.to_latin(current_text, "ua")
+        else:
+            current_text = current_text
+
         client.send_message("/chatbox/input", [current_text, True])
         print("[ProcessThread] Recognized:",current_text)
 
@@ -191,11 +198,11 @@ def main():
     
     osc = None
     if config['FollowMicMute']:
-        print("[VRCSubs] FollowMicMute is enabled in the config, speech recognition will pause when your mic is muted ingame!")
+        print("[VRCSubs] FollowMicMute is enabled in the config, speech recognition will pause when your mic is muted in-game!")
         osc = OSCServer()
         osc.launch()
     else:
-        print("[VRCSubs] FollowMicMute is NOT enabled in the config, speech recognition will work even while muted ingame!")
+        print("[VRCSubs] FollowMicMute is NOT enabled in the config, speech recognition will work even while muted in-game!")
 
     pst.join()
     cat.join()
