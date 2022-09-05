@@ -183,12 +183,19 @@ MAIN ROUTINE
 def main():
     global config
     # Load config
-    cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
-    if os.path.exists(cfgfile):
+    cfgfile = f"{os.getcwd()}/config.yml"
+    # Check if config file exists, create a file if not
+    if os.path.exists('config.yml'):
         print("[VRCSubs] Loading config from", cfgfile)
         with open(cfgfile, 'r') as f:
             config = load(f, Loader=Loader)
-
+    else:
+        print("[VRCSubs] Config was not found, creating a file with default settings instead")
+        with open('config.yml', 'w') as f:
+            f.write('FollowMicMute: true\nCapturedLanguage: "en-US"')
+        with open(cfgfile, 'r') as f:
+            config = load(f, Loader=Loader)
+        
     # Start threads
     pst = threading.Thread(target=process_sound)
     pst.start()
