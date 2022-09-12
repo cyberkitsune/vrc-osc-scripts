@@ -93,6 +93,7 @@ def main():
         try:
             current_media_info = asyncio.run(get_media_info()) # Fetches currently playing song for winsdk 
         except NoMediaRunningException:
+            time.sleep(1.5)
             continue
         except Exception as e:
             print("!!!", e, traceback.format_exc())
