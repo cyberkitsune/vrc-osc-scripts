@@ -3,7 +3,6 @@ VRCNowPlaying - Show what you're listening to in your chatbox!
 (c) 2022 CyberKitsune & MatchaCat
 """
 
-from concurrent.futures import thread
 from datetime import timedelta
 import time, os
 import traceback
