@@ -3,8 +3,10 @@ VRCNowPlaying - Show what you're listening to in your chatbox!
 (c) 2022 CyberKitsune & MatchaCat
 """
 
+from concurrent.futures import thread
 from datetime import timedelta
 import time, os
+import traceback
 from pythonosc import udp_client
 import asyncio
 
@@ -24,6 +26,10 @@ from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionManager as MediaManager
 from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionPlaybackStatus
+
+
+class NoMediaRunningException(Exception):
+    pass
 
 katsu = None
 
@@ -61,9 +67,8 @@ async def get_media_info():
                 info_dict['end'] = tlprops.end_time
 
             return info_dict
-
-
-    raise Exception("No media source running.")
+    else:
+        raise NoMediaRunningException("No media source running.")
 
 def get_td_string(td):
     seconds = abs(int(td.seconds))
@@ -85,17 +90,16 @@ def main():
         print("[VRCNowPlaying] Cutlet is not installed, Japanese characters will appear as \"?\" in VRChat")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
-    warnedMedia = False
     while True:
         try:
             current_media_info = asyncio.run(get_media_info()) # Fetches currently playing song for winsdk 
+        except NoMediaRunningException:
+            continue
         except Exception as e:
-            if not warnedMedia:
-                print("!!!", e)
-                warnedMedia = True
+            print("!!!", e, traceback.format_exc())
+            time.sleep(1.5)
             continue
 
-        warnedMedia = False
 
         song_artist, song_title = (current_media_info['artist'], current_media_info['title'])
         if not song_artist.isascii() and cutlet_installed:
