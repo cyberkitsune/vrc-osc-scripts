@@ -98,16 +98,24 @@ def process_sound():
             current_text = textwrap.wrap(current_text, width=144)[-1]
 
         last_disp_time = datetime.datetime.now()
+        print("[ProcessThread] Recognized:",current_text)
+
+        textChanged = False
+
         if config["CapturedLanguage"] == "ru-RU":
+            textChanged = True
             current_text = cyrtranslit.to_latin(current_text, "ru")
         elif config["CapturedLanguage"] == "uk-UA":
+            textChanged = True
             current_text = cyrtranslit.to_latin(current_text, "ua")
-        else:
-            if not current_text.isascii():
-                current_text = unidecode.unidecode_expect_nonascii(current_text)
+        elif not current_text.isascii():
+            textChanged = True
+            current_text = unidecode.unidecode_expect_nonascii(current_text)
+
+        if textChanged:
+            print("[ProcessThread] Converted to ascii:", current_text)
 
         client.send_message("/chatbox/input", [current_text, True])
-        print("[ProcessThread] Recognized:",current_text)
 
 '''
 AUDIO COLLECTION THREAD
