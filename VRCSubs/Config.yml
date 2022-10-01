@@ -7,6 +7,6 @@ CapturedLanguage: "en-US"
 # If you wish your chat to be translated (very beta feature!) set this to true.
 EnableTranslation: false
 
-# If EnableTranslation is true, set this to the language you wish to translate your speech to.
+# If EnableTranslation is true, set this to the language you wish to translate your speech to. Not all languages are supported.
 # /!\ Warning: VRChat does not support non-latin characters over OSC so langages that use non-latin characters will be converted.
 TranslateTo: "en-US"

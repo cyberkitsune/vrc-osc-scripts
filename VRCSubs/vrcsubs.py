@@ -7,6 +7,7 @@ import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
 import cyrtranslit
 import unidecode
+import pykakasi
 from googletrans import Translator
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
@@ -31,7 +32,11 @@ MISC HELPERS
 This code is just to cleanup code blow
 '''
 def strip_dialect(langcode):
-    return langcode.split('-')[0]
+    # zh is the long langcode where we need to preserve
+    langsplit = langcode.split('-')[0]
+    if langsplit == "zh":
+        return langcode
+    return langsplit
 
 '''
 STATE MANAGEMENT
@@ -130,6 +135,11 @@ def process_sound():
         elif textDispLangage == "uk-UA":
             textChanged = True
             current_text = cyrtranslit.to_latin(current_text, "ua")
+        elif strip_dialect(textDispLangage) == "ja":
+            textChanged = True
+            kks = pykakasi.kakasi()
+            conv = kks.convert(current_text)
+            current_text = ''.join([part['hepburn'] for part in conv])
         elif not current_text.isascii():
             textChanged = True
             current_text = unidecode.unidecode_expect_nonascii(current_text)
