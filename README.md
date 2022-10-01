@@ -36,6 +36,9 @@ The script should start listening to you right away and will send chatbox messag
 ### Config
 Some options can be configured in `VRCSubs/Config.yml` -- Just edit that file and check the comments to see what the options are!
 
+#### Translation
+There is a live translation in VRCSubs. It's considered a prototype and the output may not be very useful, but if you with to try it adjust the options `EnableTranslation` and `TranslateTo` in `VRCSubs/Config.yml`!
+
 ### To-do
 - [ ] Make the hacky audio-chunking I use cut off words less
 - [ ] Consider alternative Speech-to-text API (The google one WILL rate limit me eventually...)
