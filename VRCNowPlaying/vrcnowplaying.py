@@ -3,11 +3,13 @@ VRCNowPlaying - Show what you're listening to in your chatbox!
 (c) 2022 CyberKitsune & MatchaCat
 """
 
+from curses.ascii import isascii
 from datetime import timedelta
 import time, os
 import traceback
 from pythonosc import udp_client
 import asyncio
+import unidecode
 
 from yaml import load
 try:
@@ -117,6 +119,8 @@ def main():
 
         if not current_song_string.isascii() and cutlet_installed:
             current_song_string = katsu.romaji(current_song_string)
+        elif not current_song_string.isascii():
+            current_song_string = unidecode.unidecode_expect_nonascii(current_song_string)
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144]
         if current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:

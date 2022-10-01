@@ -4,3 +4,4 @@ cutlet
 unidic-lite
 winsdk
 pyyaml
+unidecode

@@ -2,3 +2,4 @@ python-osc
 asyncio
 winsdk
 pyyaml
+unidecode
