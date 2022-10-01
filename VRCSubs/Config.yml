@@ -3,3 +3,10 @@ FollowMicMute: false
 
 # Change this to your language if you don't want to speak English. Uses ISO language codes (see http://www.lingoes.net/en/translator/langcode.htm), e.g. en-US, fr-FR, uk-UA
 CapturedLanguage: "en-US"
+
+# If you wish your chat to be translated (very beta feature!) set this to true.
+EnableTranslation: false
+
+# If EnableTranslation is true, set this to the language you wish to translate your speech to.
+# /!\ Warning: VRChat does not support non-latin characters over OSC so langages that use non-latin characters will be converted.
+TranslateTo: "en-US"

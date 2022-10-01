@@ -7,6 +7,7 @@ import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
 import cyrtranslit
 import unidecode
+from googletrans import Translator
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
@@ -18,12 +19,19 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US"}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US"}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
 r = sr.Recognizer()
 audio_queue = queue.Queue()
+
+'''
+MISC HELPERS
+This code is just to cleanup code blow
+'''
+def strip_dialect(langcode):
+    return langcode.split('-')[0]
 
 '''
 STATE MANAGEMENT
@@ -53,6 +61,10 @@ def process_sound():
     current_text = ""
     last_text = ""
     last_disp_time = datetime.datetime.now()
+    translator = None
+    if config["EnableTranslation"]:
+        translator = Translator()
+        print("[ProcessThread] Enabling Translation!")
     print("[ProcessThread] Starting audio processing!")
     while True:
         ad, final = audio_queue.get()
@@ -94,18 +106,28 @@ def process_sound():
             print("[ProcessThread] Sending too many messages! Delaying by", (ms_to_sleep / 1000.0), "sec to not hit rate limit!")
             time.sleep(ms_to_sleep / 1000.0)
 
+        
+        textDispLangage = config["CapturedLanguage"]
+        if config["EnableTranslation"]:
+            trans = translator.translate(src=strip_dialect(config["CapturedLanguage"]), dest=strip_dialect(config["TranslateTo"]), text=current_text)
+            current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+            textDispLangage = config["TranslateTo"]
+            print("[ProcessThread] Recognized:",trans.origin, "->", current_text)
+        else:
+            print("[ProcessThread] Recognized:",current_text)
+
         if len(current_text) > 144:
             current_text = textwrap.wrap(current_text, width=144)[-1]
 
         last_disp_time = datetime.datetime.now()
-        print("[ProcessThread] Recognized:",current_text)
+       
 
         textChanged = False
 
-        if config["CapturedLanguage"] == "ru-RU":
+        if textDispLangage == "ru-RU":
             textChanged = True
             current_text = cyrtranslit.to_latin(current_text, "ru")
-        elif config["CapturedLanguage"] == "uk-UA":
+        elif textDispLangage == "uk-UA":
             textChanged = True
             current_text = cyrtranslit.to_latin(current_text, "ua")
         elif not current_text.isascii():
