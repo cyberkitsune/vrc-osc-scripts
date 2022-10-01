@@ -6,6 +6,7 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
 import cyrtranslit
+import unidecode
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
@@ -102,7 +103,8 @@ def process_sound():
         elif config["CapturedLanguage"] == "uk-UA":
             current_text = cyrtranslit.to_latin(current_text, "ua")
         else:
-            current_text = current_text
+            if not current_text.isascii():
+                current_text = unidecode.unidecode_expect_nonascii(current_text)
 
         client.send_message("/chatbox/input", [current_text, True])
         print("[ProcessThread] Recognized:",current_text)

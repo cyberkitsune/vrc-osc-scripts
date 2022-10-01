@@ -2,4 +2,5 @@ pyaudio
 SpeechRecognition
 python-osc
 cyrtranslit
+unidecode
 pyyaml
