@@ -127,10 +127,13 @@ def process_sound():
         
         textDispLangage = config["CapturedLanguage"]
         if config["EnableTranslation"]:
-            trans = translator.translate(src=strip_dialect(config["CapturedLanguage"]), dest=strip_dialect(config["TranslateTo"]), text=current_text)
-            current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
-            textDispLangage = config["TranslateTo"]
-            print("[ProcessThread] Recognized:",trans.origin, "->", current_text)
+            try:
+                trans = translator.translate(src=strip_dialect(config["CapturedLanguage"]), dest=strip_dialect(config["TranslateTo"]), text=current_text)
+                current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+                textDispLangage = config["TranslateTo"]
+                print("[ProcessThread] Recognized:",trans.origin, "->", current_text)
+            except Exception as e:
+                print("[ProcessThread] Translating ran into an error!", e)
         else:
             print("[ProcessThread] Recognized:",current_text)
 
