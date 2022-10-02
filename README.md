@@ -39,9 +39,18 @@ Some options can be configured in `VRCSubs/Config.yml` -- Just edit that file an
 #### Translation
 There is a prototype live translation function in VRCSubs. It's considered a prototype and the output may not be very useful, but if you with to try it adjust the options `EnableTranslation` and `TranslateTo` in `VRCSubs/Config.yml`!
 
+#### OSC Control
+If you wish to toggle translation and other config options in game, prefix `vrcsubs-` followed by the config key into an bool avatar paramater in Unity. Then, simply add them to your expression menu. The following are supported currently:
+* `vrcsubs-EnableTranslation` - Toggle Google Translate on / off
+* `vrcsubs-Pause` - Pause VRCSubs, regardless of mic mute status.
+* `vrcsubs-FollowMicMute` - Toggle weather or not VRCSubs follows your microphone mute status.
+
 ### To-do
-- [ ] Make the hacky audio-chunking I use cut off words less
-- [ ] Consider alternative Speech-to-text API (The google one WILL rate limit me eventually...)
+- [x] ~~Make the hacky audio-chunking I use cut off words less~~
+- [ ] Consider alternative Speech-to-text API
+- [ ] Support swaping listened to / translated language via OSC input
+- [ ] Make a self-updating standalone exe
+- [ ] Support OSCQuery when it's out
 - [x] ~~Communicate VRC mic mute status~~
 - [ ] Support non-default mic / better handle mic switching
 - [X] ~~Support VRC's chatbox rate-limit~~
