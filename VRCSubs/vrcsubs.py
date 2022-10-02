@@ -20,7 +20,7 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
@@ -77,6 +77,10 @@ def process_sound():
         
         ad, final = audio_queue.get()
         client.send_message("/chatbox/typing", (not final))
+
+        if config["EnableTranslation"] and not config["TranslateInterumResults"] and not final:
+            continue
+
         text = None
         
         time_now = datetime.datetime.now()

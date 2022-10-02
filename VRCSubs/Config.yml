@@ -14,5 +14,11 @@ EnableTranslation: false
 # /!\ Warning: VRChat does not support non-latin characters over OSC so langages that use non-latin characters will be converted.
 TranslateTo: "es-MX"
 
+# If TranslateInterumResults is true, the script will try and translate as you speak, even if you're not done talking yet.
+# The issue with this, is for some languages a partial message won't translate very well due to differences in grammar.
+# If you're talking in English and translating to Japanese or Spanish for example, you may wish to turn this to false.
+# Only leave this on if you're ok with your translation being very incorrect due to missing context.
+TranslateInterumResults: true
+
 # This config option should always be false. Used with OSC Control. Please do not touch! ^^
 Pause: false
