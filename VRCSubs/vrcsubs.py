@@ -68,14 +68,21 @@ def process_sound():
     current_text = ""
     last_text = ""
     last_disp_time = datetime.datetime.now()
-    translator = None
+    translator = Translator()
     print("[ProcessThread] Starting audio processing!")
     while True:
         if config["EnableTranslation"] and translator is None:
-            translator = Translator()
+            #translator = Translator()
             print("[ProcessThread] Enabling Translation!")
         
         ad, final = audio_queue.get()
+
+        if config["FollowMicMute"] and get_state("selfMuted"):
+            continue
+
+        if config["Pause"]:
+            continue
+
         client.send_message("/chatbox/typing", (not final))
 
         if config["EnableTranslation"] and not config["TranslateInterumResults"] and not final:
@@ -88,11 +95,6 @@ def process_sound():
         if difference.total_seconds() < 1 and not final:
             continue
         
-        if config["FollowMicMute"] and get_state("selfMuted"):
-            continue
-
-        if config["Pause"]:
-            continue
 
         try:
             #client.send_message("/chatbox/typing", True)
@@ -150,7 +152,7 @@ def process_sound():
             textChanged = True
             kks = pykakasi.kakasi()
             conv = kks.convert(current_text)
-            current_text = ''.join([part['hepburn'] for part in conv])
+            current_text = ' '.join([part['hepburn'] for part in conv])
         elif not current_text.isascii():
             textChanged = True
             current_text = unidecode.unidecode_expect_nonascii(current_text)
