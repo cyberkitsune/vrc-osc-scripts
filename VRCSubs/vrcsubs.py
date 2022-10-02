@@ -20,7 +20,7 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US"}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
@@ -35,7 +35,9 @@ def strip_dialect(langcode):
     # zh is the long langcode where we need to preserve
     langsplit = langcode.split('-')[0]
     if langsplit == "zh":
-        return langcode
+        if langcode == "zh-CN":
+            return langcode
+        return "zh-TW"
     return langsplit
 
 '''
@@ -67,11 +69,12 @@ def process_sound():
     last_text = ""
     last_disp_time = datetime.datetime.now()
     translator = None
-    if config["EnableTranslation"]:
-        translator = Translator()
-        print("[ProcessThread] Enabling Translation!")
     print("[ProcessThread] Starting audio processing!")
     while True:
+        if config["EnableTranslation"] and translator is None:
+            translator = Translator()
+            print("[ProcessThread] Enabling Translation!")
+        
         ad, final = audio_queue.get()
         client.send_message("/chatbox/typing", (not final))
         text = None
@@ -83,6 +86,10 @@ def process_sound():
         
         if config["FollowMicMute"] and get_state("selfMuted"):
             continue
+
+        if config["Pause"]:
+            continue
+
         try:
             #client.send_message("/chatbox/typing", True)
             text = r.recognize_google(ad, language=config["CapturedLanguage"])
@@ -196,6 +203,9 @@ class OSCServer():
         self.dispatcher.set_default_handler(self._def_osc_dispatch)
         self.dispatcher.map("/avatar/parameters/MuteSelf", self._osc_muteself)
 
+        for key in config.keys():
+            self.dispatcher.map("/avatar/parameters/vrcsub-%s" % key, self._osc_updateconf)
+
         self.server = BlockingOSCUDPServer(("127.0.0.1", 9001), self.dispatcher)
         self.server_thread = threading.Thread(target=self._process_osc)
 
@@ -209,6 +219,11 @@ class OSCServer():
     def _osc_muteself(self, address, *args):
         print("[OSCThread] Mute is now", args[0])
         set_state("selfMuted", args[0])
+
+    def _osc_updateconf(self, address, *args):
+        key = address.split("vrcsub-")[1]
+        print("[OSCThread]", key, "is now", args[0])
+        config[key] = args[0]
 
     def _def_osc_dispatch(self, address, *args):
         pass
@@ -239,12 +254,20 @@ def main():
     cat.start()
     
     osc = None
+    launchOSC = False
     if config['FollowMicMute']:
         print("[VRCSubs] FollowMicMute is enabled in the config, speech recognition will pause when your mic is muted in-game!")
-        osc = OSCServer()
-        osc.launch()
+        launchOSC = True
     else:
         print("[VRCSubs] FollowMicMute is NOT enabled in the config, speech recognition will work even while muted in-game!")
+
+    if config['AllowOSCControl']:
+        print("[VRCSubs] AllowOSCControl is enabled in the config, will listen for OSC controls!")
+        launchOSC = True
+
+    if launchOSC:
+        osc = OSCServer()
+        osc.launch()
 
     pst.join()
     cat.join()

@@ -1,5 +1,8 @@
-# Set this to true in order to pause the subtitling when your in-game microphone is muted
+# Set this to true in order to pause the subtitling when your in-game microphone is muted. This will cause the script to listen for OSC events.
 FollowMicMute: false
+
+# Set this to allow any of these config options to be driven by avatar paramaters. This will cause the script to listen for OSC events.
+AllowOSCControl: true
 
 # Change this to your language if you don't want to speak English. Uses ISO language codes (see http://www.lingoes.net/en/translator/langcode.htm), e.g. en-US, fr-FR, uk-UA
 CapturedLanguage: "en-US"
@@ -9,4 +12,7 @@ EnableTranslation: false
 
 # If EnableTranslation is true, set this to the language you wish to translate your speech to. Not all languages are supported.
 # /!\ Warning: VRChat does not support non-latin characters over OSC so langages that use non-latin characters will be converted.
-TranslateTo: "en-US"
+TranslateTo: "es-MX"
+
+# This config option should always be false. Used with OSC Control. Please do not touch! ^^
+Pause: false
