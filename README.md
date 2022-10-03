@@ -33,18 +33,14 @@ python VRCSubs/vrcsubs.py
 
 The script should start listening to you right away and will send chatbox messages as you speak!
 
-### Config
+### OSC Avatar Control
+You don't _need_ any avatar-specific setup to use VRCSubs! But if you'd like you can add some additional paramaters to make controlling it easier. For more information check out: [VRCUsbs OSC Avatar Toggle Setup](https://github.com/cyberkitsune/vrc-osc-scripts/wiki/VRCSubs-OSC-Avatar-Toggle-Setup)
+
+### Configuration
 Some options can be configured in `VRCSubs/Config.yml` -- Just edit that file and check the comments to see what the options are!
 
 #### Translation
 There is a prototype live translation function in VRCSubs. It's considered a prototype and the output may not be very useful, but if you with to try it adjust the options `EnableTranslation` and `TranslateTo` in `VRCSubs/Config.yml`!
-
-#### OSC Control
-If you wish to toggle translation and other config options in game, prefix `vrcsubs-` followed by the config key into an bool avatar paramater in Unity. Then, simply add them to your expression menu. The following are supported currently:
-* `vrcsub-EnableTranslation` - Toggle Google Translate on / off
-* `vrcsub-Pause` - Pause VRCSubs, regardless of mic mute status.
-* `vrcsub-FollowMicMute` - Toggle weather or not VRCSubs follows your microphone mute status.
-* `vrcsub-TranslateInterumResults` - When translation is on and this is on too, it will translate while you speak, even if you're not done talking. Otherwise, it will wait for you to finish speaking before translation.
 
 ### To-do
 - [x] ~~Make the hacky audio-chunking I use cut off words less~~
