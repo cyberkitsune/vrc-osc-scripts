@@ -34,7 +34,7 @@ python VRCSubs/vrcsubs.py
 The script should start listening to you right away and will send chatbox messages as you speak!
 
 ### OSC Avatar Control
-You don't _need_ any avatar-specific setup to use VRCSubs! But if you'd like you can add some additional paramaters to make controlling it easier. For more information check out: [VRCUsbs OSC Avatar Toggle Setup](https://github.com/cyberkitsune/vrc-osc-scripts/wiki/VRCSubs-OSC-Avatar-Toggle-Setup)
+You don't _need_ any avatar-specific setup to use VRCSubs! But if you'd like you can add some additional paramaters to make controlling it easier. For more information check out: [VRCSubs OSC Avatar Toggle Setup](https://github.com/cyberkitsune/vrc-osc-scripts/wiki/VRCSubs-OSC-Avatar-Toggle-Setup)
 
 ### Configuration
 Some options can be configured in `VRCSubs/Config.yml` -- Just edit that file and check the comments to see what the options are!
