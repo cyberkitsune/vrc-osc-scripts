@@ -4,6 +4,9 @@ FollowMicMute: false
 # Set this to allow any of these config options to be driven by avatar paramaters. This will cause the script to listen for OSC events.
 AllowOSCControl: true
 
+# This setting changes which port VRCSubs listens on in order to receive OSC messages. You only need to change it if you use an OSC aggregator.
+OSCControlPort: 9001
+
 # Change this to your language if you don't want to speak English. Uses ISO language codes (see http://www.lingoes.net/en/translator/langcode.htm), e.g. en-US, fr-FR, uk-UA
 CapturedLanguage: "en-US"
 

@@ -20,7 +20,7 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
@@ -208,6 +208,7 @@ TODO: This maybe should be bundled into a class
 '''
 class OSCServer():
     def __init__(self):
+        global config
         self.dispatcher = Dispatcher()
         self.dispatcher.set_default_handler(self._def_osc_dispatch)
         self.dispatcher.map("/avatar/parameters/MuteSelf", self._osc_muteself)
@@ -215,7 +216,7 @@ class OSCServer():
         for key in config.keys():
             self.dispatcher.map("/avatar/parameters/vrcsub-%s" % key, self._osc_updateconf)
 
-        self.server = BlockingOSCUDPServer(("127.0.0.1", 9001), self.dispatcher)
+        self.server = BlockingOSCUDPServer(("127.0.0.1", config['OSCControlPort']), self.dispatcher)
         self.server_thread = threading.Thread(target=self._process_osc)
 
     def launch(self):
