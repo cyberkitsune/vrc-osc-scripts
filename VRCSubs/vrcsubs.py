@@ -8,6 +8,13 @@ import speech_recognition as sr
 import cyrtranslit
 import unidecode
 import pykakasi
+from pythonnet import load
+load("coreclr")
+import clr
+clr.AddReference(f"{os.path.dirname(os.path.realpath(__file__))}/vrc-oscquery-lib.dll")
+from VRC.OSCQuery import OSCQueryService
+from VRC.OSCQuery import Extensions
+
 from googletrans import Translator
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
@@ -209,6 +216,11 @@ TODO: This maybe should be bundled into a class
 class OSCServer():
     def __init__(self):
         global config
+        self.osc_port = Extensions.GetAvailableUdpPort()
+        self.http_port = Extensions.GetAvailableTcpPort()
+        self.oscquery = OSCQueryService("VRCSubs-%i" % self.osc_port, self.http_port, self.osc_port, None)
+        print("[OSCQuery] Running on HTTP port", self.http_port, "and UDP port", self.osc_port)
+
         self.dispatcher = Dispatcher()
         self.dispatcher.set_default_handler(self._def_osc_dispatch)
         self.dispatcher.map("/avatar/parameters/MuteSelf", self._osc_muteself)
@@ -216,8 +228,10 @@ class OSCServer():
         for key in config.keys():
             self.dispatcher.map("/avatar/parameters/vrcsub-%s" % key, self._osc_updateconf)
 
-        self.server = BlockingOSCUDPServer(("127.0.0.1", config['OSCControlPort']), self.dispatcher)
+        self.server = BlockingOSCUDPServer(("127.0.0.1", self.osc_port), self.dispatcher)
         self.server_thread = threading.Thread(target=self._process_osc)
+
+        
 
     def launch(self):
         self.server_thread.start()
@@ -285,5 +299,5 @@ def main():
     if osc is not None:
         osc.shutdown()
 
-if __name__ == "__main__":
+if __name__ == "__main__":   
     main()
