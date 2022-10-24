@@ -8,12 +8,8 @@ import speech_recognition as sr
 import cyrtranslit
 import unidecode
 import pykakasi
-from pythonnet import load
-load("coreclr")
-import clr
-clr.AddReference(f"{os.path.dirname(os.path.realpath(__file__))}/vrc-oscquery-lib.dll")
-from VRC.OSCQuery import OSCQueryService
-from VRC.OSCQuery import Extensions
+from tinyoscquery.queryservice import OSCQueryService
+from tinyoscquery.utility import get_open_tcp_port, get_open_udp_port
 
 from googletrans import Translator
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
@@ -216,9 +212,9 @@ TODO: This maybe should be bundled into a class
 class OSCServer():
     def __init__(self):
         global config
-        self.osc_port = Extensions.GetAvailableUdpPort()
-        self.http_port = Extensions.GetAvailableTcpPort()
-        self.oscquery = OSCQueryService("VRCSubs-%i" % self.osc_port, self.http_port, self.osc_port, None)
+        self.osc_port = get_open_udp_port()
+        self.http_port = get_open_tcp_port()
+        self.oscquery = OSCQueryService("VRCSubs-%i" % self.osc_port, self.http_port, self.osc_port)
         print("[OSCQuery] Running on HTTP port", self.http_port, "and UDP port", self.osc_port)
 
         self.dispatcher = Dispatcher()
