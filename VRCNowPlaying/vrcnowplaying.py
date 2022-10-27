@@ -8,19 +8,12 @@ import time, os
 import traceback
 from pythonosc import udp_client
 import asyncio
-import unidecode
 
 from yaml import load
 try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
-
-cutlet_installed = True
-try:
-    import cutlet
-except ModuleNotFoundError as err:
-    cutlet_installed = False
 
 from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionManager as MediaManager
@@ -30,12 +23,6 @@ from winsdk.windows.media.control import \
 
 class NoMediaRunningException(Exception):
     pass
-
-katsu = None
-
-if cutlet_installed:
-    katsu = cutlet.Cutlet()
-    katsu.use_foreign_spelling = False
 
 
 config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )"}
@@ -77,17 +64,15 @@ def get_td_string(td):
     return '%i:%02i' % (minutes, seconds)
 
 def main():
-    global cutlet_installed, config, last_displayed_song
+    global config, last_displayed_song
     # Load config
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
         print("[VRCSubs] Loading config from", cfgfile)
-        with open(cfgfile, 'r') as f:
+        with open(cfgfile, 'r', encoding='utf-8') as f:
             config = load(f, Loader=Loader)
 
     print("[VRCNowPlaying] VRCNowPlaying is now running")
-    if not cutlet_installed:
-        print("[VRCNowPlaying] Cutlet is not installed, Japanese characters will appear as \"?\" in VRChat")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     while True:
@@ -103,11 +88,6 @@ def main():
 
 
         song_artist, song_title = (current_media_info['artist'], current_media_info['title'])
-        if not song_artist.isascii() and cutlet_installed:
-            song_artist = katsu.romaji(song_artist)
-
-        if not song_title.isascii() and cutlet_installed:
-            song_title = katsu.romaji(song_title)
 
         song_position = ""
 
@@ -116,17 +96,13 @@ def main():
 
         current_song_string = config['DisplayFormat'].format(song_artist=song_artist, song_title=song_title, song_position=song_position)
 
-        if not current_song_string.isascii() and cutlet_installed:
-            current_song_string = katsu.romaji(current_song_string)
-        elif not current_song_string.isascii():
-            current_song_string = unidecode.unidecode_expect_nonascii(current_song_string)
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144]
         if current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
             if last_displayed_song != (song_artist, song_title):
                 last_displayed_song = (song_artist, song_title)
-                print("[VRCNowPlaying]", current_song_string.encode('ascii', errors="replace").decode())
-            client.send_message("/chatbox/input", [current_song_string.encode('ascii', errors="replace").decode(), True])
+                print("[VRCNowPlaying]", current_song_string)
+            client.send_message("/chatbox/input", [current_song_string, True])
             lastPaused = False
         elif current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED and not lastPaused:
             client.send_message("/chatbox/input", [config['PausedFormat'], True])
