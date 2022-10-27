@@ -7,3 +7,4 @@ pyyaml
 googletrans==4.0.0rc1
 pykakasi
 pythonnet
+git+https://github.com/cyberkitsune/tinyoscquery.git
