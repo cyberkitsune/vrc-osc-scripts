@@ -1,7 +1,4 @@
 python-osc
 asyncio
-cutlet
-unidic-lite
 winsdk
 pyyaml
-unidecode

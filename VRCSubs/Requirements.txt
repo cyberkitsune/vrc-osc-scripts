@@ -1,8 +1,5 @@
 pyaudio
 SpeechRecognition
 python-osc
-cyrtranslit
-unidecode
 pyyaml
 googletrans==4.0.0rc1
-pykakasi

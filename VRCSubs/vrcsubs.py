@@ -5,9 +5,6 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 
 import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
-import cyrtranslit
-import unidecode
-import pykakasi
 from googletrans import Translator
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
@@ -95,7 +92,6 @@ def process_sound():
         if difference.total_seconds() < 1 and not final:
             continue
         
-
         try:
             #client.send_message("/chatbox/typing", True)
             text = r.recognize_google(ad, language=config["CapturedLanguage"])
@@ -141,27 +137,6 @@ def process_sound():
             current_text = textwrap.wrap(current_text, width=144)[-1]
 
         last_disp_time = datetime.datetime.now()
-       
-
-        textChanged = False
-
-        if textDispLangage == "ru-RU":
-            textChanged = True
-            current_text = cyrtranslit.to_latin(current_text, "ru")
-        elif textDispLangage == "uk-UA":
-            textChanged = True
-            current_text = cyrtranslit.to_latin(current_text, "ua")
-        elif strip_dialect(textDispLangage) == "ja":
-            textChanged = True
-            kks = pykakasi.kakasi()
-            conv = kks.convert(current_text)
-            current_text = ' '.join([part['hepburn'] for part in conv])
-        elif not current_text.isascii():
-            textChanged = True
-            current_text = unidecode.unidecode_expect_nonascii(current_text)
-
-        if textChanged:
-            print("[ProcessThread] Converted to ascii:", current_text)
 
         client.send_message("/chatbox/input", [current_text, True])
 
