@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+update/
+VRCSubs/Config.yml
+VRCNowPlaying/Config.yml
+version.json
+
+.vscode
