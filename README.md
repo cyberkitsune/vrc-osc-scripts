@@ -1,6 +1,8 @@
 # vrc-osc-scripts
 This repo contains various python OSC helper scripts that I made for VRChat, mostly stuff that interacts with the new chatbox api!
 
+For additional feedback or help feel free to join [the Discord!](https://discord.gg/xKR4UbXS7Z)
+
 All these scripts require python3 and use pip for dependency management unless otherwise specified.
 
 **Be sure to enable OSC in your VRChat radial menu before using these scripts!**
