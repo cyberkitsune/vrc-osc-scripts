@@ -46,9 +46,10 @@ if __name__ == "__main__":
     update_zip = fetch_latest_repo_zip()
     with zipfile.ZipFile(io.BytesIO(update_zip), 'r') as zf:
         for file in zf.filelist:
-            if file != "Config.yml":
-                print(f"[Updatecheck] Extracting {file}")
-                zf.extract(file, "update")
+            if 'Config.yml' in file.filename:
+                continue
+            print(f"[Updatecheck] Extracting {file.filename}")
+            zf.extract(file, "update")
     
     update_folder = glob.glob(f"./update/{REPO_OWNER}-{REPO_NAME}-*", recursive=True)
     if len(update_folder) < 0:
@@ -56,7 +57,7 @@ if __name__ == "__main__":
         exit(1)
 
     update_folder = update_folder[0]
-    shutil.copytree(update_folder, os.getcwd(), dirs_exist_ok=True, ignore=shutil.ignore_patterns("*/Config.yml"))
+    shutil.copytree(update_folder, os.getcwd(), dirs_exist_ok=True)
     
     shutil.rmtree(update_folder, ignore_errors=True)
 
