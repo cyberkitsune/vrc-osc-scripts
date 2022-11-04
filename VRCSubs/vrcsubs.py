@@ -35,6 +35,9 @@ def strip_dialect(langcode):
         if langcode == "zh-CN":
             return langcode
         return "zh-TW"
+    if langsplit == "yue":
+        return "zh-TW"
+    
     return langsplit
 
 '''
