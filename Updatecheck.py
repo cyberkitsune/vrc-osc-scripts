@@ -56,7 +56,7 @@ if __name__ == "__main__":
         exit(1)
 
     update_folder = update_folder[0]
-    shutil.copytree(update_folder, os.getcwd(), dirs_exist_ok=True)
+    shutil.copytree(update_folder, os.getcwd(), dirs_exist_ok=True, ignore=shutil.ignore_patterns("*/Config.yml"))
     
     shutil.rmtree(update_folder, ignore_errors=True)
 
