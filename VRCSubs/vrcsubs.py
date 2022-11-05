@@ -231,8 +231,12 @@ def main():
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
         print("[VRCSubs] Loading config from", cfgfile)
+        new_config = None
         with open(cfgfile, 'r') as f:
-            config = load(f, Loader=Loader)
+            new_config = load(f, Loader=Loader)
+        if new_config is not None:
+            for key in new_config:
+                config[key] = new_config[key]
 
     # Start threads
     pst = threading.Thread(target=process_sound)
