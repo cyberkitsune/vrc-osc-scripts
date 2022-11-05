@@ -5,22 +5,53 @@ import googletrans
 registered_translators = {}
 
 class VRCSubsTranslator(metaclass=abc.ABCMeta):
+    """An abstract class that represents a possible translator for VRCSubs. Subclass this abstract class to make one
+    """
     @abc.abstractclassmethod
-    def __init__(self, args) -> None:
+    def __init__(self, args):
+        """Constructs a VRCSubs translator and initalizes it.
+
+        Args:
+            args (str): If the translator requires any string arguments, such as an api key, specify them here.
+        """
         pass
 
     @abc.abstractclassmethod
     def translate(self, source_lang, target_lang, text) -> str:
+        """Translate given text from a given langage into a different one.
+
+        Args:
+            source_lang (str): The language code of the source language (unaltered)
+            target_lang (str): The langugage code of the destination language (unaltered)
+            text (str): The untranslated text
+
+        Returns:
+            str: The translated text
+        """
         pass
 
     @abc.abstractclassmethod
     def conv_langcode(self, langcode) -> str:
+        """Convert a standard language code into one supported by this translator.
+
+        Args:
+            langcode (str): The standard language code
+
+        Returns:
+            str: The translator-specific language code
+        """
         return langcode
 
 
 class RegisterTranslator(object):
-
+    """This is a decorator that must be attached to your subclass of VRCSubsTranslator for the config file to be aware that it exists.
+    """
     def __init__(self, translator_name):
+        """Creates a translator registration for a CLASS
+
+        Args:
+            translator_name (str): The name of your translator as it will be set in the Config.yml
+        """
         self.translator_name = translator_name
 
     def __call__(self, translator_class):
