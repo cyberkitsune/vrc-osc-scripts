@@ -6,6 +6,7 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
 from googletrans import Translator
+import deepl
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
@@ -17,7 +18,7 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001,'DeepL': False,'DeepLToken': ""}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
@@ -28,8 +29,13 @@ audio_queue = queue.Queue()
 MISC HELPERS
 This code is just to cleanup code blow
 '''
-def strip_dialect(langcode):
+def strip_dialect(langcode,translator = "Google"):
     # zh is the long langcode where we need to preserve
+    if translator == "DeepL":
+        if langcode.upper() in ["EN-US","EN-GB","PT-BR","PT-PT"]:
+            return langcode.upper()
+        else:
+            return langcode.split('-')[0]
     langsplit = langcode.split('-')[0]
     if langsplit == "zh":
         if langcode == "zh-CN":
@@ -69,6 +75,12 @@ def process_sound():
     last_text = ""
     last_disp_time = datetime.datetime.now()
     translator = Translator()
+    if config["DeepL"]:
+        try:
+            dtranslator = deepl.Translator(config["DeepLToken"])
+        except deepl.DeepLException as e:
+            dtranslator = None
+            print("[ProcessThread] Failed to initialize DeepL")
     print("[ProcessThread] Starting audio processing!")
     while True:
         if config["EnableTranslation"] and translator is None:
@@ -126,13 +138,23 @@ def process_sound():
         
         textDispLangage = config["CapturedLanguage"]
         if config["EnableTranslation"]:
-            try:
-                trans = translator.translate(src=strip_dialect(config["CapturedLanguage"]), dest=strip_dialect(config["TranslateTo"]), text=current_text)
-                current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
-                textDispLangage = config["TranslateTo"]
-                print("[ProcessThread] Recognized:",trans.origin, "->", current_text)
-            except Exception as e:
-                print("[ProcessThread] Translating ran into an error!", e)
+            if config["DeepL"] and dtranslator:
+                try:
+                    trans = dtranslator.translate_text(source_lang=strip_dialect(config["CapturedLanguage"],translator="DeepL")[:2].upper(),target_lang=strip_dialect(config["TranslateTo"],translator="DeepL").upper(),text=current_text)
+                    trans_origin = current_text
+                    current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+                    textDispLangage = config["TranslateTo"]
+                    print("[ProcessThread] Recognized:",trans_origin, "->", current_text)
+                except Exception as e:
+                    print("[ProcessThread] Translating ran into an error!", e)
+            else:
+                try:
+                    trans = translator.translate(src=strip_dialect(config["CapturedLanguage"]), dest=strip_dialect(config["TranslateTo"]), text=current_text)
+                    current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+                    textDispLangage = config["TranslateTo"]
+                    print("[ProcessThread] Recognized:",trans.origin, "->", current_text)
+                except Exception as e:
+                    print("[ProcessThread] Translating ran into an error!", e)
         else:
             print("[ProcessThread] Recognized:",current_text)
 
@@ -151,7 +173,7 @@ def collect_audio():
     mic = sr.Microphone()
     print("[AudioThread] Starting audio collection!")
     did = mic.get_pyaudio().PyAudio().get_default_input_device_info()
-    print("[AudioThread] Using", did.get('name'), "as Microphone!")
+    print("[AudioThread] Using", did.get('name').encode("shift-jis").decode("utf-8"), "as Microphone!")
     with mic as source:
         audio_buf = None
         buf_size = 0
