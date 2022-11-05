@@ -5,8 +5,8 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 
 import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
-from googletrans import Translator
-import deepl
+import translators
+
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
@@ -18,33 +18,12 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001,'DeepL': False,'DeepLToken': ""}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, 'TranslateMethod': "Google", 'TranslateToken': "", "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
 r = sr.Recognizer()
 audio_queue = queue.Queue()
-
-'''
-MISC HELPERS
-This code is just to cleanup code blow
-'''
-def strip_dialect(langcode,translator = "Google"):
-    # zh is the long langcode where we need to preserve
-    if translator == "DeepL":
-        if langcode.upper() in ["EN-US","EN-GB","PT-BR","PT-PT"]:
-            return langcode.upper()
-        else:
-            return langcode.split('-')[0]
-    langsplit = langcode.split('-')[0]
-    if langsplit == "zh":
-        if langcode == "zh-CN":
-            return langcode
-        return "zh-TW"
-    if langsplit == "yue":
-        return "zh-TW"
-    
-    return langsplit
 
 '''
 STATE MANAGEMENT
@@ -74,18 +53,22 @@ def process_sound():
     current_text = ""
     last_text = ""
     last_disp_time = datetime.datetime.now()
-    translator = Translator()
-    if config["DeepL"]:
-        try:
-            dtranslator = deepl.Translator(config["DeepLToken"])
-        except deepl.DeepLException as e:
-            dtranslator = None
-            print("[ProcessThread] Failed to initialize DeepL")
+    translator = None
+    
     print("[ProcessThread] Starting audio processing!")
     while True:
         if config["EnableTranslation"] and translator is None:
-            #translator = Translator()
+            tclass = None
             print("[ProcessThread] Enabling Translation!")
+            if config["TranslateMethod"] in translators.registered_translators:
+                tclass = translators.registered_translators[config["TranslateMethod"]]
+            targs = config["TranslateToken"]
+
+            try:
+                translator = tclass(targs)
+            except Exception as e:
+                print("[ProcessThread] Unable to initalize translator!", e)
+            
         
         ad, final = audio_queue.get()
 
@@ -136,25 +119,15 @@ def process_sound():
             time.sleep(ms_to_sleep / 1000.0)
 
         
-        textDispLangage = config["CapturedLanguage"]
-        if config["EnableTranslation"]:
-            if config["DeepL"] and dtranslator:
-                try:
-                    trans = dtranslator.translate_text(source_lang=strip_dialect(config["CapturedLanguage"],translator="DeepL")[:2].upper(),target_lang=strip_dialect(config["TranslateTo"],translator="DeepL").upper(),text=current_text)
-                    trans_origin = current_text
-                    current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
-                    textDispLangage = config["TranslateTo"]
-                    print("[ProcessThread] Recognized:",trans_origin, "->", current_text)
-                except Exception as e:
-                    print("[ProcessThread] Translating ran into an error!", e)
-            else:
-                try:
-                    trans = translator.translate(src=strip_dialect(config["CapturedLanguage"]), dest=strip_dialect(config["TranslateTo"]), text=current_text)
-                    current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
-                    textDispLangage = config["TranslateTo"]
-                    print("[ProcessThread] Recognized:",trans.origin, "->", current_text)
-                except Exception as e:
-                    print("[ProcessThread] Translating ran into an error!", e)
+        if config["EnableTranslation"] and translator is not None: 
+            try:
+                trans = translator.translate(source_lang=config["CapturedLanguage"], target_lang=config["TranslateTo"], text=current_text)
+                origin = current_text
+                current_text = trans + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+                
+                print("[ProcessThread] Recognized:",origin, "->", current_text)
+            except Exception as e:
+                print("[ProcessThread] Translating ran into an error!", e)
         else:
             print("[ProcessThread] Recognized:",current_text)
 
