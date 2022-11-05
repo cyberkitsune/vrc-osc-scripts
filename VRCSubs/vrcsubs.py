@@ -140,7 +140,7 @@ def process_sound():
         if config["EnableTranslation"]:
             if config["DeepL"] and dtranslator:
                 try:
-                    trans = dtranslator.translate_text(source_lang=strip_dialect(config["CapturedLanguage"],translator="DeepL").upper(),target_lang=strip_dialect(config["TranslateTo"],translator="DeepL").upper(),text=current_text)
+                    trans = dtranslator.translate_text(source_lang=strip_dialect(config["CapturedLanguage"],translator="DeepL")[:2].upper(),target_lang=strip_dialect(config["TranslateTo"],translator="DeepL").upper(),text=current_text)
                     trans_origin = current_text
                     current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
                     textDispLangage = config["TranslateTo"]
