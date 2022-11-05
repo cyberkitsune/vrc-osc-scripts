@@ -26,9 +26,9 @@ TranslateInterumResults: true
 # This config option should always be false. Used with OSC Control. Please do not touch! ^^
 Pause: false
 
-#Use DeepL API
-#It is more accurate than Google Translate, although it supports fewer languages.
-#To use it, you need to register at DeepL and get the API https://www.deepl.com/ja/account/summary
-#List of supported languages https://www.deepl.com/ja/docs-api/translate-text/translate-text/
+# If you want to translate using DeepL set this to true.
+# It is more accurate than Google Translate, although it supports fewer languages.
+# To use it, you need to register at DeepL and get the API https://www.deepl.com/ja/account/summary
+# List of supported languages https://www.deepl.com/ja/docs-api/translate-text/translate-text/
 DeepL: false
 DeepLToken: ""
