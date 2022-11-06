@@ -106,7 +106,7 @@ class DeepLTranslator(VRCSubsTranslator):
     def translate(self, source_lang, target_lang, text) -> str:
         output = None
         try:
-            self.dtranslator.translate_text(text=text, source_lang=self.conv_langcode(source_lang)[:2].upper(), target_lang=self.conv_langcode(target_lang)[:2].upper())
+            output = self.dtranslator.translate_text(text=text, source_lang=self.conv_langcode(source_lang)[:2].upper(), target_lang=self.conv_langcode(target_lang).upper())
         except Exception as e:
             raise Exception("Failed to translate text!", e)
         if output is not None:
