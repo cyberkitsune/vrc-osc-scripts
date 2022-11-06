@@ -146,7 +146,7 @@ def collect_audio():
     mic = sr.Microphone()
     print("[AudioThread] Starting audio collection!")
     did = mic.get_pyaudio().PyAudio().get_default_input_device_info()
-    print("[AudioThread] Using", did.get('name').encode("shift-jis").decode("utf-8"), "as Microphone!")
+    print("[AudioThread] Using", did.get('name'), "as Microphone!")
     with mic as source:
         audio_buf = None
         buf_size = 0
