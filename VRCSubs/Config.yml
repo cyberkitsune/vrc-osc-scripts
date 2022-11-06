@@ -13,6 +13,17 @@ CapturedLanguage: "en-US"
 # If you wish your chat to be translated (very beta feature!) set this to true.
 EnableTranslation: false
 
+# For message translation, specify what translation engine to use. The options are:
+# "Google" - The default, free
+# "DeepL"  - More accurate then Google Translate, but supports fewer langugages. It requires a token. (see below)
+#            List of supported languages by DeepL: https://www.deepl.com/ja/docs-api/translate-text/translate-text/
+TranslateMethod: "Google"
+
+# If your translation service requires a token, specify it here.
+# For "Google" - No token required, leave as ""
+# For "DeepL"  - You need to register at DeepL and get the API https://www.deepl.com/ja/account/summary
+TranslateToken: ""
+
 # If EnableTranslation is true, set this to the language you wish to translate your speech to. Not all languages are supported.
 # /!\ Warning: VRChat does not support non-latin characters over OSC so langages that use non-latin characters will be converted.
 TranslateTo: "es-MX"
@@ -25,10 +36,3 @@ TranslateInterumResults: true
 
 # This config option should always be false. Used with OSC Control. Please do not touch! ^^
 Pause: false
-
-# If you want to translate using DeepL set this to true.
-# It is more accurate than Google Translate, although it supports fewer languages.
-# To use it, you need to register at DeepL and get the API https://www.deepl.com/ja/account/summary
-# List of supported languages https://www.deepl.com/ja/docs-api/translate-text/translate-text/
-DeepL: false
-DeepLToken: ""
