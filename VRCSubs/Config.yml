@@ -15,7 +15,7 @@ EnableTranslation: false
 
 # For message translation, specify what translation engine to use. The options are:
 # "Google" - The default, free
-# "DeepL"  - More accurate then Google Translate, but costs money and supports fewer langugages. It requires a token. (see below)
+# "DeepL"  - More accurate then Google Translate, but supports fewer langugages. It requires a token. (see below)
 #            List of supported languages by DeepL: https://www.deepl.com/ja/docs-api/translate-text/translate-text/
 TranslateMethod: "Google"
 
