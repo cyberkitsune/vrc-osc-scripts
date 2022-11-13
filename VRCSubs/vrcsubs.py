@@ -11,6 +11,7 @@ from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
+from tinyoscquery.query import OSCQueryBrowser
 from yaml import load
 try:
     from yaml import CLoader as Loader
@@ -21,6 +22,7 @@ except ImportError:
 config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, 'TranslateMethod': "Google", 'TranslateToken': "", "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
+unpause_time = None
 
 r = sr.Recognizer()
 audio_queue = queue.Queue()
@@ -45,6 +47,17 @@ def set_state(key, value):
     state_lock.release()
 
 '''
+OSC Chatbox Controller Helper
+'''
+def broadcast_chatbox_pause(query_browser : OSCQueryBrowser, value):
+    # /textcontrol/pause
+    dests = query_browser.find_nodes_by_endpoint_address("/textcontrol/pause")
+    for dest_si, dest_hi, dest_node in dests:
+        client = udp_client.SimpleUDPClient("127.0.0.1", dest_hi.osc_port)
+        client.send_message("/textcontrol/pause", value)
+
+
+'''
 SOUND PROCESSING THREAD
 '''
 def process_sound():
@@ -54,9 +67,15 @@ def process_sound():
     last_text = ""
     last_disp_time = datetime.datetime.now()
     translator = None
+    query_browser = OSCQueryBrowser()
+    unpause_time = None
     
     print("[ProcessThread] Starting audio processing!")
     while True:
+        if unpause_time is not None and datetime.datetime.now() >= unpause_time:
+            broadcast_chatbox_pause(query_browser, False)
+            unpause_time = None
+
         if config["EnableTranslation"] and translator is None:
             tclass = None
             print("[ProcessThread] Enabling Translation!")
@@ -135,7 +154,8 @@ def process_sound():
             current_text = textwrap.wrap(current_text, width=144)[-1]
 
         last_disp_time = datetime.datetime.now()
-
+        unpause_time = datetime.datetime.now() + datetime.timedelta(seconds=15)
+        broadcast_chatbox_pause(query_browser, True)
         client.send_message("/chatbox/input", [current_text, True])
 
 '''
