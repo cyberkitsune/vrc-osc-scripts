@@ -53,6 +53,8 @@ def broadcast_chatbox_pause(query_browser : OSCQueryBrowser, value):
     # /textcontrol/pause
     dests = query_browser.find_nodes_by_endpoint_address("/textcontrol/pause")
     for dest_si, dest_hi, dest_node in dests:
+        if dest_hi is None:
+            continue
         client = udp_client.SimpleUDPClient("127.0.0.1", dest_hi.osc_port)
         client.send_message("/textcontrol/pause", value)
 
