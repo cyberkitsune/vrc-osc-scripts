@@ -4,4 +4,4 @@ python-osc
 pyyaml
 googletrans==4.0.0rc1
 deepl
-git+https://github.com/cyberkitsune/tinyoscquery.git@0.1.1
+https://github.com/cyberkitsune/tinyoscquery/archive/refs/tags/0.1.1.zip
