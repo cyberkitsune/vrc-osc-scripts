@@ -4,10 +4,14 @@ VRCNowPlaying - Show what you're listening to in your chatbox!
 """
 
 from datetime import timedelta
-import time, os
-import traceback
+import time, os, threading, traceback
 from pythonosc import udp_client
+from pythonosc.dispatcher import Dispatcher
+from pythonosc.osc_server import BlockingOSCUDPServer
 import asyncio
+
+from tinyoscquery.queryservice import OSCQueryService
+from tinyoscquery.utility import get_open_tcp_port, get_open_udp_port
 
 from yaml import load
 try:
@@ -28,6 +32,9 @@ class NoMediaRunningException(Exception):
 config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )"}
 
 last_displayed_song = ("","")
+
+# TODO Maybe add a timeout override...
+pause_update = False
 
 async def get_media_info():
     sessions = await MediaManager.request_async()
@@ -63,15 +70,36 @@ def get_td_string(td):
     minutes, seconds = divmod(seconds, 60)
     return '%i:%02i' % (minutes, seconds)
 
+def osc_update_status(address, *args):
+    global pause_update
+    pause_update = args[0]
+    print("[OSCControl] Remote sent pause update:", pause_update)
+
+def osc_input_thread():
+    global pause_update
+    osc_port = get_open_udp_port()
+    oscjson_port = get_open_tcp_port()
+    oscqs = OSCQueryService("VRCNowPlaying", oscjson_port, osc_port)
+    oscqs.advertise_endpoint("/textcontrol/pause", pause_update)
+    dispatcher = Dispatcher()
+    dispatcher.map("/textcontrol/pause", osc_update_status)
+    server = BlockingOSCUDPServer(("127.0.0.1", osc_port), dispatcher)
+    print("[OSCControl] OSC Control server starting...")
+
+    server.serve_forever()
+
+
+
 def main():
-    global config, last_displayed_song
+    global config, last_displayed_song, pause_update
     # Load config
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
         print("[VRCSubs] Loading config from", cfgfile)
         with open(cfgfile, 'r', encoding='utf-8') as f:
             config = load(f, Loader=Loader)
-
+    osc_thread = threading.Thread(target=osc_input_thread)
+    osc_thread.start()
     print("[VRCNowPlaying] VRCNowPlaying is now running")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
@@ -102,14 +130,18 @@ def main():
             if last_displayed_song != (song_artist, song_title):
                 last_displayed_song = (song_artist, song_title)
                 print("[VRCNowPlaying]", current_song_string)
-            client.send_message("/chatbox/input", [current_song_string, True])
+            if not pause_update:
+                client.send_message("/chatbox/input", [current_song_string, True])
             lastPaused = False
         elif current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED and not lastPaused:
-            client.send_message("/chatbox/input", [config['PausedFormat'], True])
-            print("[VRCNowPlaying]", config['PausedFormat'])
+            if not pause_update:
+                client.send_message("/chatbox/input", [config['PausedFormat'], True])
+                print("[VRCNowPlaying]", config['PausedFormat'])
             last_displayed_song = ("", "")
             lastPaused = True
         time.sleep(1.5) # 1.5 sec delay to update with no flashing
+
+    osc_thread.join()
 
 if __name__ == "__main__":
     main()
