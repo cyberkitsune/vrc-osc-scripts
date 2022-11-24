@@ -70,8 +70,10 @@ def main():
     if os.path.exists(cfgfile):
         print("[VRCSubs] Loading config from", cfgfile)
         with open(cfgfile, 'r', encoding='utf-8') as f:
-            config = load(f, Loader=Loader)
-
+            new_config = load(f, Loader=Loader)
+            if new_config is not None:
+                for key in new_config:
+                    config[key] = new_config[key]
     print("[VRCNowPlaying] VRCNowPlaying is now running")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
