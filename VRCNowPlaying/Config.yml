@@ -3,3 +3,6 @@ DisplayFormat: "( ▶️ {song_artist} - {song_title}{song_position} )"
 
 # Configure what is shown when you pause media.
 PausedFormat: "( ⏸️ Playback Paused )"
+
+# If you only want the np box to show on track change, set this to true.
+OnlyShowOnChange: false

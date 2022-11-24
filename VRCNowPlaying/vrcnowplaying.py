@@ -25,7 +25,7 @@ class NoMediaRunningException(Exception):
     pass
 
 
-config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )"}
+config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )", 'OnlyShowOnChange': False}
 
 last_displayed_song = ("","")
 
@@ -101,10 +101,13 @@ def main():
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144]
         if current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
+            send_to_vrc = not config['OnlyShowOnChange']
             if last_displayed_song != (song_artist, song_title):
+                send_to_vrc = True
                 last_displayed_song = (song_artist, song_title)
                 print("[VRCNowPlaying]", current_song_string)
-            client.send_message("/chatbox/input", [current_song_string, True])
+            if send_to_vrc:
+                client.send_message("/chatbox/input", [current_song_string, True])
             lastPaused = False
         elif current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED and not lastPaused:
             client.send_message("/chatbox/input", [config['PausedFormat'], True])
