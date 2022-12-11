@@ -107,10 +107,10 @@ def main():
                 last_displayed_song = (song_artist, song_title)
                 print("[VRCNowPlaying]", current_song_string)
             if send_to_vrc:
-                client.send_message("/chatbox/input", [current_song_string, True])
+                client.send_message("/chatbox/input", [current_song_string, True, False])
             lastPaused = False
         elif current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED and not lastPaused:
-            client.send_message("/chatbox/input", [config['PausedFormat'], True])
+            client.send_message("/chatbox/input", [config['PausedFormat'], True, False])
             print("[VRCNowPlaying]", config['PausedFormat'])
             last_displayed_song = ("", "")
             lastPaused = True
