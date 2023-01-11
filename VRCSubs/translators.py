@@ -5,6 +5,11 @@ from vosk import Model, KaldiRecognizer
 import pyaudio
 registered_translators = {}
 
+mic = pyaudio.PyAudio()
+stream = mic.open(input=True, rate=16000, channels=1, frames_per_buffer=8192, format=pyaudio.paInt16)
+model = Model(r".\vosk")
+recognizer = KaldiRecognizer(model, 16000)
+
 class VRCSubsTranslator(metaclass=abc.ABCMeta):
     """An abstract class that represents a possible translator for VRCSubs. Subclass this abstract class to make one
     """
@@ -91,14 +96,9 @@ class GoogleTranslator(VRCSubsTranslator):
 
 @RegisterTranslator("Vosk")
 class VoskTranslator(VRCSubsTranslator):
-    def __init__():
 
-        mic = pyaudio.PyAudio()
-        stream = mic.open(input=True, rate=16000, channels=1,
-                  frames_per_buffer=8192, format=pyaudio.paInt16)
 
-        model = Model(r".\vosk")
-        recognizer = KaldiRecognizer(model, 16000)
+        
     def translate():
 
         data = stream.read(512, exception_on_overflow = False)
