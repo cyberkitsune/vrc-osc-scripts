@@ -46,7 +46,7 @@ There is a prototype live translation function in VRCSubs. It's considered a pro
 
 ### To-do
 - [x] ~~Make the hacky audio-chunking I use cut off words less~~
-- [x] ~~Consider alternative Speech-to-text API
+- [x] ~~Consider alternative Speech-to-text API~~
 - [ ] Support swaping listened to / translated language via OSC input
 - [ ] Make a self-updating standalone exe
 - [ ] Support OSCQuery when it's out
