@@ -15,6 +15,7 @@ EnableTranslation: false
 
 # For message translation, specify what translation engine to use. The options are:
 # "Google" - The default, free
+# "Vosk"   - English Only, Slighty Better results Than Google, Runs Locally, Only use if you have Considerable cpu headroom, about 500 Megabytes of ram free, Best Results When Speaking Clearly 
 # "DeepL"  - More accurate then Google Translate, but supports fewer langugages. It requires a token. (see below)
 #            List of supported languages by DeepL: https://www.deepl.com/ja/docs-api/translate-text/translate-text/
 TranslateMethod: "Google"

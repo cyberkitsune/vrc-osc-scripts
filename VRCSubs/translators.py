@@ -1,7 +1,8 @@
 import abc
 import deepl
 import googletrans
-
+from vosk import Model, KaldiRecognizer
+import pyaudio
 registered_translators = {}
 
 class VRCSubsTranslator(metaclass=abc.ABCMeta):
@@ -59,6 +60,7 @@ class RegisterTranslator(object):
         registered_translators[self.translator_name] = translator_class
 
 
+ 
 @RegisterTranslator("Google")
 class GoogleTranslator(VRCSubsTranslator):
     def __init__(self, args):
@@ -87,7 +89,31 @@ class GoogleTranslator(VRCSubsTranslator):
         else:
             return None
 
+@RegisterTranslator("Vosk")
+class VoskTranslator(VRCSubsTranslator):
+    def __init__():
 
+        mic = pyaudio.PyAudio()
+        stream = mic.open(input=True, rate=16000, channels=1,
+                  frames_per_buffer=8192, format=pyaudio.paInt16)
+
+        model = Model(r".\vosk")
+        recognizer = KaldiRecognizer(model, 16000)
+    def translate():
+
+        data = stream.read(512, exception_on_overflow = False)
+        if recognizer.AcceptWaveform(data):
+
+            msg = recognizer.Result()
+            msg = msg[14:-3]
+            msg = msg.replace('huh', '') 
+            # When it doesnt detect any voice sometimes it likes to just go,
+            # Huh Huh Huh once every couple of seconds its kinda werid.
+            if msg == None:
+                pass
+            else:
+             return msg
+    
 @RegisterTranslator("DeepL")
 class DeepLTranslator(VRCSubsTranslator):
     def __init__(self, api_key):
