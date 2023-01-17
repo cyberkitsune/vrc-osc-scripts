@@ -1,4 +1,4 @@
 @echo off
 echo "Checking for updates..."
-pip install -r Requirements.txt
+python -m pip install -r Requirements.txt
 python Updatecheck.py
