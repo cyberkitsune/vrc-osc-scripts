@@ -18,12 +18,14 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, 'TranslateMethod': "Google", 'TranslateToken': "", "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
+config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'TranscriptionMethod': "Google", 'EnableTranslation': False, 'TranslateMethod': "Google", 'TranslateToken': "", "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
 r = sr.Recognizer()
 audio_queue = queue.Queue()
+
+methods = {"Google": r.recognize_google, "Vosk": r.recognize_vosk}
 
 '''
 STATE MANAGEMENT
@@ -48,7 +50,7 @@ def set_state(key, value):
 SOUND PROCESSING THREAD
 '''
 def process_sound():
-    global audio_queue, r, config
+    global audio_queue, r, config, methods
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     current_text = ""
     last_text = ""
@@ -90,9 +92,15 @@ def process_sound():
         if difference.total_seconds() < 1 and not final:
             continue
         
+        if config["TranscriptionMethod"] in methods:
+            method = methods[config["TranscriptionMethod"]]
+        else:
+            method = r.recognize_google
+
         try:
             #client.send_message("/chatbox/typing", True)
-            text = r.recognize_google(ad, language=config["CapturedLanguage"])
+            text = method(ad, language=config["CapturedLanguage"])
+            
         except UnknownValueError:
             #client.send_message("/chatbox/typing", False)
             continue
@@ -103,6 +111,9 @@ def process_sound():
         except Exception as e:
             print("[ProcessThread] Exception!", e)
             #client.send_message("/chatbox/typing", False)
+            continue
+
+        if text is None or text == "":
             continue
 
         current_text = text
