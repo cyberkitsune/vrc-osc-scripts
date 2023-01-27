@@ -133,3 +133,6 @@ VRCNowPlaying/Config.yml
 version.json
 
 .vscode
+
+# vosk models
+model/
