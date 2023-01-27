@@ -1,5 +1,5 @@
 pyaudio
-SpeechRecognition
+SpeechRecognition==3.8.1
 python-osc
 pyyaml
 googletrans==4.0.0rc1
