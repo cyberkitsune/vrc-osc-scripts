@@ -18,7 +18,26 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, 'TranslateMethod': "Google", 'TranslateToken': "", "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
+config = {
+    'FollowMicMute': True,
+    'CapturedLanguage': "en-US", 
+    'EnableTranslation': False,
+    'TranslateMethod': "Google",
+    'TranslateToken': "",
+    'TranslateTo': "en-US",
+    'AllowOSCControl': True,
+    'Pause': False,
+    'TranslateInterumResults': True,
+    'OSCControlPort': 9001,
+    'Recognizer': { 
+        'Engine': "google"
+    },
+    'RateLimiter': {
+        'Enabled': True,
+        'Threshold': 1500,
+    }
+}
+
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
@@ -92,7 +111,9 @@ def process_sound():
         
         try:
             #client.send_message("/chatbox/typing", True)
-            text = r.recognize_google(ad, language=config["CapturedLanguage"])
+            match config["Recognizer"]["Engine"]:
+                case 'google':
+                    text = r.recognize_google(ad, language=config["CapturedLanguage"])
         except UnknownValueError:
             #client.send_message("/chatbox/typing", False)
             continue

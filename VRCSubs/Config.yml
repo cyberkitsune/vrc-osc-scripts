@@ -36,3 +36,8 @@ TranslateInterumResults: true
 
 # This config option should always be false. Used with OSC Control. Please do not touch! ^^
 Pause: false
+
+Recognizer:
+  # The enigne/API of SpeechRecognition, see also: https://github.com/Uberi/speech_recognition
+  # Supported: "google"
+  Engine: google
