@@ -41,6 +41,23 @@ You don't _need_ any avatar-specific setup to use VRCSubs! But if you'd like you
 ### Configuration
 Some options can be configured in `VRCSubs/Config.yml` -- Just edit that file and check the comments to see what the options are!
 
+#### Using [Vosk API](https://github.com/alphacep/vosk-api)
+
+It can use optional Vosk API as recognition engine, which works offline.
+
+Because it is an optional feature, please install manually:
+
+```
+pip install vosk
+```
+
+On the other hand, you need to install Vosk Model to use it properly.
+
+1. Download model from [Vosk Models](https://alphacephei.com/vosk/models)
+    - *Important*: Choose the correct language which you are using
+2. Extract (unzip) the model, and change folder name to `model`
+3. Put `model` folder into root of project
+
 #### Translation
 There is a prototype live translation function in VRCSubs. It's considered a prototype and the output may not be very useful, but if you with to try it adjust the options `EnableTranslation` and `TranslateTo` in `VRCSubs/Config.yml`!
 
