@@ -133,11 +133,12 @@ def process_sound():
 
         last_text = current_text
 
-        diff_in_milliseconds = difference.total_seconds() * 1000
-        if diff_in_milliseconds < 1500:
-            ms_to_sleep = 1500 - diff_in_milliseconds
-            print("[ProcessThread] Sending too many messages! Delaying by", (ms_to_sleep / 1000.0), "sec to not hit rate limit!")
-            time.sleep(ms_to_sleep / 1000.0)
+        if config["RateLimiter"]["Enabled"]:
+            diff_in_milliseconds = difference.total_seconds() * 1000
+            if diff_in_milliseconds < config["RateLimiter"]["Threshold"]:
+                ms_to_sleep = config["RateLimiter"]["Threshold"] - diff_in_milliseconds
+                print("[ProcessThread] Sending too many messages! Delaying by", (ms_to_sleep / 1000.0), "sec to not hit rate limit!")
+                time.sleep(ms_to_sleep / 1000.0)
 
         
         if config["EnableTranslation"] and translator is not None: 

@@ -41,3 +41,12 @@ Recognizer:
   # The enigne/API of SpeechRecognition, see also: https://github.com/Uberi/speech_recognition
   # Supported: "google"
   Engine: google
+
+# Rate limiter setting
+RateLimiter:
+  # When using an offline engine (e.g. Vosk API, OpenAI whisper), it can disable rate limiter.
+  # /!\ Warning: When using an online engine, it is highly recommended enabled.
+  Enabled: true
+
+  # The minium duration of sending between two requests, use milliseconds (ms).
+  Threshold: 1500
