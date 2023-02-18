@@ -39,7 +39,7 @@ Pause: false
 
 Recognizer:
   # The enigne/API of SpeechRecognition, see also: https://github.com/Uberi/speech_recognition
-  # Supported: "google"
+  # Supported: "google", "vosk"
   Engine: google
 
 # Rate limiter setting

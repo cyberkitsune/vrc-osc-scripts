@@ -114,6 +114,8 @@ def process_sound():
             match config["Recognizer"]["Engine"]:
                 case 'google':
                     text = r.recognize_google(ad, language=config["CapturedLanguage"])
+                case 'vosk':
+                    text = r.recognize_vosk(ad, language=config["CapturedLanguage"])
         except UnknownValueError:
             #client.send_message("/chatbox/typing", False)
             continue
