@@ -150,6 +150,8 @@ def process_sound():
                 origin = current_text
                 if config['ShowTranslateIndicator']:
                     current_text = trans + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+                else:
+                    current_text = trans
                 
                 print("[ProcessThread] Recognized:",origin, "->", current_text)
             except Exception as e:
