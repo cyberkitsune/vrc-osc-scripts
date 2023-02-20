@@ -20,6 +20,8 @@ except ImportError:
 
 config = {
     'FollowMicMute': True, 
+    'AllowOSCControl': True, 
+    'OSCControlPort': 9001,
     'CapturedLanguage': "en-US", 
     'TranscriptionMethod': "Google", 
     'TranscriptionRateLimit': 1200,
@@ -27,10 +29,9 @@ config = {
     'TranslateMethod': "Google", 
     'TranslateToken': "", 
     "TranslateTo": "en-US", 
-    'AllowOSCControl': True, 
-    'Pause': False, 
     'TranslateInterumResults': True, 
-    'OSCControlPort': 9001
+    'ShowTranslateIndicator': True,
+    'Pause': False
     }
 state = {'selfMuted': False}
 state_lock = threading.Lock()
@@ -147,7 +148,8 @@ def process_sound():
             try:
                 trans = translator.translate(source_lang=config["CapturedLanguage"], target_lang=config["TranslateTo"], text=current_text)
                 origin = current_text
-                current_text = trans + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+                if config['ShowTranslateIndicator']:
+                    current_text = trans + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
                 
                 print("[ProcessThread] Recognized:",origin, "->", current_text)
             except Exception as e:

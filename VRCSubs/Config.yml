@@ -44,5 +44,8 @@ TranslateTo: "es-MX"
 # Only leave this on if you're ok with your translation being very incorrect due to missing context.
 TranslateInterumResults: true
 
+# Turn this to false to hide the translation languages (the "[en-US -> es-MX]") from the chatbox
+ShowTranslateIndicator: true
+
 # This config option should always be false. Used with OSC Control. Please do not touch! ^^
 Pause: false
