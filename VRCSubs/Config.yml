@@ -17,6 +17,7 @@ CapturedLanguage: "en-US"
 TranscriptionMethod: "Google"
 
 # Rate limit for the transcriber between chat boxes (in ms) -- For example "1500" will wait to ensure a message isn't sent again within 1.5 seconds.
+# /!\ Setting this below 1000 will result in VRChat muting you for 60 seconds if you talk for a little bit!!
 TranscriptionRateLimit: 1200
 
 # If you wish your chat to be translated (very beta feature!) set this to true.
