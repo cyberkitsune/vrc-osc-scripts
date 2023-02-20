@@ -1,6 +1,7 @@
 pyaudio
-SpeechRecognition==3.8.1
+https://github.com/cyberkitsune/speech_recognition/archive/refs/heads/vrcsubs-edits.zip
 python-osc
 pyyaml
 googletrans==4.0.0rc1
 deepl
+vosk

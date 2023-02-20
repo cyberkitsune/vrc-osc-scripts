@@ -10,6 +10,12 @@ OSCControlPort: 9001
 # Change this to your language if you don't want to speak English. Uses ISO language codes (see http://www.lingoes.net/en/translator/langcode.htm), e.g. en-US, fr-FR, uk-UA
 CapturedLanguage: "en-US"
 
+# For speech to text, what engine should be used? The options are:
+# "Google" - The default, fairly accurate, but uses the Google API to transcribe, so it may take some time, and may be blocked in some places.
+# "Vosk"   - An offline open-source option. Less accurate, and requires a model to be downloaded. However, it may be faster and work regardless of location.
+#            You can download vosk models here: https://alphacephei.com/vosk/models
+TranscriptionMethod: "Google"
+
 # If you wish your chat to be translated (very beta feature!) set this to true.
 EnableTranslation: false
 
