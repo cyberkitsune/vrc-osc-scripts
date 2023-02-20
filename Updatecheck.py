@@ -3,7 +3,7 @@ import requests, os, json, zipfile, io, glob, shutil
 API_BASE = "https://api.github.com"
 REPO_OWNER = "cyberkitsune"
 REPO_NAME = "vrc-osc-scripts"
-REPO_BRANCH = "feat/vosk"
+REPO_BRANCH = "main"
 
 def fetch_last_commit_info():
     # /repos/:owner/:repo/commits/master
