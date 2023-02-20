@@ -18,7 +18,20 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'TranscriptionMethod': "Google", 'EnableTranslation': False, 'TranslateMethod': "Google", 'TranslateToken': "", "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
+config = {
+    'FollowMicMute': True, 
+    'CapturedLanguage': "en-US", 
+    'TranscriptionMethod': "Google", 
+    'TranscriptionRateLimit': 1200,
+    'EnableTranslation': False, 
+    'TranslateMethod': "Google", 
+    'TranslateToken': "", 
+    "TranslateTo": "en-US", 
+    'AllowOSCControl': True, 
+    'Pause': False, 
+    'TranslateInterumResults': True, 
+    'OSCControlPort': 9001
+    }
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
@@ -124,8 +137,8 @@ def process_sound():
         last_text = current_text
 
         diff_in_milliseconds = difference.total_seconds() * 1000
-        if diff_in_milliseconds < 1500:
-            ms_to_sleep = 1500 - diff_in_milliseconds
+        if diff_in_milliseconds < config["TranscriptionRateLimit"]:
+            ms_to_sleep = config["TranscriptionRateLimit"] - diff_in_milliseconds
             print("[ProcessThread] Sending too many messages! Delaying by", (ms_to_sleep / 1000.0), "sec to not hit rate limit!")
             time.sleep(ms_to_sleep / 1000.0)
 
