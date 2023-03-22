@@ -95,7 +95,8 @@ def main():
 
         song_position = ""
 
-        if 'pos' in current_media_info:
+        if 'pos' in current_media_info \
+        and current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
             if current_media_info['end'].seconds == 50400:
                 # FIXME: YouTube Live streams always report an end time of 50400 seconds. Using this for live detection.
                 #        is there a better way...?
