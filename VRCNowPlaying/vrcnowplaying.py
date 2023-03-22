@@ -28,6 +28,8 @@ class NoMediaRunningException(Exception):
 config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )", 'OnlyShowOnChange': False}
 
 last_displayed_song = ("","")
+displayed_timestamp = None
+last_reported_timestamp = None
 
 async def get_media_info():
     sessions = await MediaManager.request_async()
@@ -64,7 +66,7 @@ def get_td_string(td):
     return '%i:%02i' % (minutes, seconds)
 
 def main():
-    global config, last_displayed_song
+    global config, last_displayed_song, displayed_timestamp, last_reported_timestamp
     # Load config
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
@@ -94,7 +96,24 @@ def main():
         song_position = ""
 
         if 'pos' in current_media_info:
-            song_position = " <%s / %s>" % (get_td_string(current_media_info['pos']), get_td_string(current_media_info['end']))
+            if current_media_info['end'].seconds == 50400:
+                # FIXME: YouTube Live streams always report an end time of 50400 seconds. Using this for live detection.
+                #        is there a better way...?
+
+                song_position = " <LIVE>"
+            else:
+                if displayed_timestamp is None:
+                    displayed_timestamp = current_media_info['pos']
+
+                if last_reported_timestamp == current_media_info['pos']:
+                    # 1.5 sec ago is the same as now. Add 1.5s
+                    displayed_timestamp = displayed_timestamp + timedelta(seconds=1.5)
+                else:
+                    # Last reported is different then current. Use current info
+                    last_reported_timestamp = current_media_info['pos']
+                    displayed_timestamp = current_media_info['pos']
+                    
+                song_position = " <%s / %s>" % (get_td_string(displayed_timestamp), get_td_string(current_media_info['end']))
 
         current_song_string = config['DisplayFormat'].format(song_artist=song_artist, song_title=song_title, song_position=song_position)
 
