@@ -1,6 +1,6 @@
 @echo off
-python --help >nul 2>&1
 Setlocal EnableDelayedExpansion
+python --help >nul 2>&1
 IF !ERRORLEVEL! NEQ 0 (
     WHERE winget
     IF !ERRORLEVEL! NEQ 0 (
