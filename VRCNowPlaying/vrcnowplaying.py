@@ -108,7 +108,7 @@ def main():
     # Load config
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
-        print("[VRCSubs] Loading config from", cfgfile)
+        print("[VRCNowPlaying] Loading config from", cfgfile)
         with open(cfgfile, 'r', encoding='utf-8') as f:
             new_config = load(f, Loader=Loader)
             if new_config is not None:
