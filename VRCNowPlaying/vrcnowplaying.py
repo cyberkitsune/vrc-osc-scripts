@@ -77,7 +77,7 @@ def tick_textfile(udp_client):
         return
     
     text = None
-    with open(config['TextFileLocation'], 'r') as f:
+    with open(config['TextFileLocation'], 'r', encoding="utf-8") as f:
         text = f.read()
 
     # Show nothing on read failure
