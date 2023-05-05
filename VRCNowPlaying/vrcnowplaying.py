@@ -25,9 +25,12 @@ class NoMediaRunningException(Exception):
     pass
 
 
-config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )", 'OnlyShowOnChange': False}
+config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )", 'PausedFormat': "( Playback Paused )", 'OnlyShowOnChange': False,
+          'UseTextFile': False, 'TextFileLocation': "", 'TextFileUpdateAlways': False}
 
 last_displayed_song = ("","")
+
+textfile_first_tick = False
 
 async def get_media_info():
     sessions = await MediaManager.request_async()
@@ -63,6 +66,43 @@ def get_td_string(td):
     minutes, seconds = divmod(seconds, 60)
     return '%i:%02i' % (minutes, seconds)
 
+def tick_textfile(udp_client):
+    global textfile_first_tick, last_displayed_song
+    if not textfile_first_tick:
+        textfile_first_tick = True
+        print(f"[VRCNowPlaying] VRCNowPlaying will watch the text file at {config['TextFileLocation']} and display it!")
+
+    # First, if the file isn't present, don't do anything (the tick delay is inherit from the caller)
+    if not os.path.exists(config['TextFileLocation']):
+        return
+    
+    text = None
+    with open(config['TextFileLocation'], 'r') as f:
+        text = f.read()
+
+    # Show nothing on read failure
+    if text is None:
+        return
+    
+    # Bail if the text is exactly the same
+    duplicate_message = False
+    if text == last_displayed_song:
+        duplicate_message = True
+        if not config['TextFileUpdateAlways']:
+            return
+    
+    # Bail if text is empty string
+    if text.strip() == "":
+        return
+    
+    # Print the file!
+    if not duplicate_message:
+        print(f"[VRCNowPlaying] {text}")
+    
+    udp_client.send_message("/chatbox/input", [text, True, False])
+    last_displayed_song = text
+
+
 def main():
     global config, last_displayed_song
     # Load config
@@ -78,6 +118,12 @@ def main():
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     while True:
+        if config['UseTextFile']:
+            tick_textfile(client)
+            time.sleep(1.5) # 1.5 sec delay to update with no flashing
+            continue
+
+        # Normal, non-textfile, operation below
         try:
             current_media_info = asyncio.run(get_media_info()) # Fetches currently playing song for winsdk 
         except NoMediaRunningException:

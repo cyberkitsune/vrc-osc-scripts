@@ -6,3 +6,16 @@ PausedFormat: "( ⏸️ Playback Paused )"
 
 # If you only want the np box to show on track change, set this to true.
 OnlyShowOnChange: false
+
+# Use the below settings if you want to have VRCNowPlaying simply read a text file instead of automatically finding the song info.
+# If you use this, the above settings will be ignored!
+
+# Set this to true to use the textfile feature
+UseTextFile: false
+
+# Set this to the path on your computer that you wish to watch. PLEASE USE DOUBLE BACKSLASHES (or single forward slashes) OR THIS WILL FAIL!!!
+TextFileLocation: "C:\\Users\\Example\\Now_Playing.txt"
+
+# By default, if the text file does not change, VRCNowPlaying won't display it. 
+# If you set this to true, the text file will be displayed all the time!
+TextFileUpdateAlways: false
