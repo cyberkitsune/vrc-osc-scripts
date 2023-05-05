@@ -13,7 +13,7 @@ OnlyShowOnChange: false
 # Set this to true to use the textfile feature
 UseTextFile: false
 
-# Set this to the path on your computer that you wish to watch
+# Set this to the path on your computer that you wish to watch. PLEASE USE DOUBLE BACKSLASHES (or single forward slashes) OR THIS WILL FAIL!!!
 TextFileLocation: "C:\\Users\\Example\\Now_Playing.txt"
 
 # By default, if the text file does not change, VRCNowPlaying won't display it. 

@@ -97,7 +97,7 @@ def tick_textfile(udp_client):
     
     # Print the file!
     if not duplicate_message:
-        print("[VRCNowPlaying] {text}")
+        print(f"[VRCNowPlaying] {text}")
     
     udp_client.send_message("/chatbox/input", [text, True, False])
     last_displayed_song = text
