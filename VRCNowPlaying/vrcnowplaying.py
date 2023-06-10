@@ -29,6 +29,8 @@ config = {'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )"
           'UseTextFile': False, 'TextFileLocation': "", 'TextFileUpdateAlways': False}
 
 last_displayed_song = ("","")
+displayed_timestamp = None
+last_reported_timestamp = None
 
 textfile_first_tick = False
 
@@ -104,7 +106,7 @@ def tick_textfile(udp_client):
 
 
 def main():
-    global config, last_displayed_song
+    global config, last_displayed_song, displayed_timestamp, last_reported_timestamp
     # Load config
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
@@ -139,8 +141,26 @@ def main():
 
         song_position = ""
 
-        if 'pos' in current_media_info:
-            song_position = " <%s / %s>" % (get_td_string(current_media_info['pos']), get_td_string(current_media_info['end']))
+        if 'pos' in current_media_info \
+        and current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
+            if current_media_info['end'].seconds == 50400:
+                # FIXME: YouTube Live streams always report an end time of 50400 seconds. Using this for live detection.
+                #        is there a better way...?
+
+                song_position = " <LIVE>"
+            else:
+                if displayed_timestamp is None:
+                    displayed_timestamp = current_media_info['pos']
+
+                if last_reported_timestamp == current_media_info['pos']:
+                    # 1.5 sec ago is the same as now. Add 1.5s
+                    displayed_timestamp = displayed_timestamp + timedelta(seconds=1.5)
+                else:
+                    # Last reported is different then current. Use current info
+                    last_reported_timestamp = current_media_info['pos']
+                    displayed_timestamp = current_media_info['pos']
+                    
+                song_position = " <%s / %s>" % (get_td_string(displayed_timestamp), get_td_string(current_media_info['end']))
 
         current_song_string = config['DisplayFormat'].format(song_artist=song_artist, song_title=song_title, song_position=song_position)
 
