@@ -6,4 +6,4 @@ googletrans==4.0.0rc1
 deepl
 vosk
 pythonnet
-git+https://github.com/cyberkitsune/tinyoscquery.git
+https://github.com/cyberkitsune/tinyoscquery/archive/refs/tags/0.1.2.zip
