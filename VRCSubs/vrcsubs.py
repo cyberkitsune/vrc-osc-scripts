@@ -6,7 +6,8 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
 import translators
-from tinyoscquery.queryservice import OSCQueryService
+from tinyoscquery.queryservice import OSCQueryService, OSCAccess
+from tinyoscquery.query import OSCQueryBrowser, OSCQueryClient
 from tinyoscquery.utility import get_open_tcp_port, get_open_udp_port
 
 
@@ -209,6 +210,7 @@ TODO: This maybe should be bundled into a class
 class OSCServer():
     def __init__(self):
         global config
+
         self.osc_port = get_open_udp_port()
         self.http_port = get_open_tcp_port()
         self.oscquery = OSCQueryService("VRCSubs-%i" % self.osc_port, self.http_port, self.osc_port)
@@ -218,8 +220,32 @@ class OSCServer():
         self.dispatcher.set_default_handler(self._def_osc_dispatch)
         self.dispatcher.map("/avatar/parameters/MuteSelf", self._osc_muteself)
 
+        # Set up the OSCQuery params -- VRChat will only automatically send if we advertise that we receive
+        self.oscquery.advertise_endpoint("/avatar/parameters/MuteSelf",  get_state('selfMuted'), OSCAccess.WRITEONLY_VALUE)
+
+        
+        
         for key in config.keys():
-            self.dispatcher.map("/avatar/parameters/vrcsub-%s" % key, self._osc_updateconf)
+            self.dispatcher.map(f"/avatar/parameters/vrcsub-{key}", self._osc_updateconf)
+            self.oscquery.advertise_endpoint(f"/avatar/parameters/vrcsub-{key}", config[key], OSCAccess.WRITEONLY_VALUE)
+
+        browser = OSCQueryBrowser()
+        time.sleep(2)
+        service = browser.find_service_by_name("VRChat-Client")
+        
+        if service is not None:
+            oscq = OSCQueryClient(service)
+            node = oscq.query_node("/avatar/parameters/MuteSelf")
+            
+            set_state('selfMuted', node.value[0])
+
+            for key in config.keys():
+                n = oscq.query_node(f"/avatar/parameters/vrcsub-{key}")
+                if n is not None:
+                    print(f"[OSCQuery] Config {key} -> {n.value[0]}")
+                    config[key] = n.value[0]
+            
+            print("[OSCQuery] Loaded values from VRChat!")
 
         self.server = BlockingOSCUDPServer(("127.0.0.1", self.osc_port), self.dispatcher)
         self.server_thread = threading.Thread(target=self._process_osc)
