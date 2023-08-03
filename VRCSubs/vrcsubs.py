@@ -5,13 +5,11 @@ VRCSubs - A script to create "subtitles" for yourself using the VRChat textbox!
 
 import queue, threading, datetime, os, time, textwrap
 import speech_recognition as sr
-import cyrtranslit
-import unidecode
-import pykakasi
+import translators
 from tinyoscquery.queryservice import OSCQueryService
 from tinyoscquery.utility import get_open_tcp_port, get_open_udp_port
 
-from googletrans import Translator
+
 from speech_recognition import UnknownValueError, WaitTimeoutError, AudioData
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
@@ -23,25 +21,27 @@ except ImportError:
     from yaml import Loader
 
 
-config = {'FollowMicMute': True, 'CapturedLanguage': "en-US", 'EnableTranslation': False, "TranslateTo": "en-US", 'AllowOSCControl': True, 'Pause': False, 'TranslateInterumResults': True, 'OSCControlPort': 9001}
+config = {
+    'FollowMicMute': True, 
+    'CapturedLanguage': "en-US", 
+    'TranscriptionMethod': "Google", 
+    'TranscriptionRateLimit': 1200,
+    'EnableTranslation': False, 
+    'TranslateMethod': "Google", 
+    'TranslateToken': "", 
+    "TranslateTo": "en-US", 
+    'AllowOSCControl': True, 
+    'Pause': False, 
+    'TranslateInterumResults': True, 
+    'OSCControlPort': 9001
+    }
 state = {'selfMuted': False}
 state_lock = threading.Lock()
 
 r = sr.Recognizer()
 audio_queue = queue.Queue()
 
-'''
-MISC HELPERS
-This code is just to cleanup code blow
-'''
-def strip_dialect(langcode):
-    # zh is the long langcode where we need to preserve
-    langsplit = langcode.split('-')[0]
-    if langsplit == "zh":
-        if langcode == "zh-CN":
-            return langcode
-        return "zh-TW"
-    return langsplit
+methods = {"Google": r.recognize_google, "Vosk": r.recognize_vosk}
 
 '''
 STATE MANAGEMENT
@@ -66,17 +66,27 @@ def set_state(key, value):
 SOUND PROCESSING THREAD
 '''
 def process_sound():
-    global audio_queue, r, config
+    global audio_queue, r, config, methods
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
     current_text = ""
     last_text = ""
     last_disp_time = datetime.datetime.now()
-    translator = Translator()
+    translator = None
+    
     print("[ProcessThread] Starting audio processing!")
     while True:
         if config["EnableTranslation"] and translator is None:
-            #translator = Translator()
+            tclass = None
             print("[ProcessThread] Enabling Translation!")
+            if config["TranslateMethod"] in translators.registered_translators:
+                tclass = translators.registered_translators[config["TranslateMethod"]]
+            targs = config["TranslateToken"]
+
+            try:
+                translator = tclass(targs)
+            except Exception as e:
+                print("[ProcessThread] Unable to initalize translator!", e)
+            
         
         ad, final = audio_queue.get()
 
@@ -98,10 +108,15 @@ def process_sound():
         if difference.total_seconds() < 1 and not final:
             continue
         
+        if config["TranscriptionMethod"] in methods:
+            method = methods[config["TranscriptionMethod"]]
+        else:
+            method = r.recognize_google
 
         try:
             #client.send_message("/chatbox/typing", True)
-            text = r.recognize_google(ad, language=config["CapturedLanguage"])
+            text = method(ad, language=config["CapturedLanguage"])
+            
         except UnknownValueError:
             #client.send_message("/chatbox/typing", False)
             continue
@@ -114,6 +129,9 @@ def process_sound():
             #client.send_message("/chatbox/typing", False)
             continue
 
+        if text is None or text == "":
+            continue
+
         current_text = text
 
         if last_text == current_text:
@@ -122,19 +140,19 @@ def process_sound():
         last_text = current_text
 
         diff_in_milliseconds = difference.total_seconds() * 1000
-        if diff_in_milliseconds < 1500:
-            ms_to_sleep = 1500 - diff_in_milliseconds
+        if diff_in_milliseconds < config["TranscriptionRateLimit"]:
+            ms_to_sleep = config["TranscriptionRateLimit"] - diff_in_milliseconds
             print("[ProcessThread] Sending too many messages! Delaying by", (ms_to_sleep / 1000.0), "sec to not hit rate limit!")
             time.sleep(ms_to_sleep / 1000.0)
 
         
-        textDispLangage = config["CapturedLanguage"]
-        if config["EnableTranslation"]:
+        if config["EnableTranslation"] and translator is not None: 
             try:
-                trans = translator.translate(src=strip_dialect(config["CapturedLanguage"]), dest=strip_dialect(config["TranslateTo"]), text=current_text)
-                current_text = trans.text + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
-                textDispLangage = config["TranslateTo"]
-                print("[ProcessThread] Recognized:",trans.origin, "->", current_text)
+                trans = translator.translate(source_lang=config["CapturedLanguage"], target_lang=config["TranslateTo"], text=current_text)
+                origin = current_text
+                current_text = trans + " [%s->%s]" % (config["CapturedLanguage"], config["TranslateTo"])
+                
+                print("[ProcessThread] Recognized:",origin, "->", current_text)
             except Exception as e:
                 print("[ProcessThread] Translating ran into an error!", e)
         else:
@@ -144,27 +162,6 @@ def process_sound():
             current_text = textwrap.wrap(current_text, width=144)[-1]
 
         last_disp_time = datetime.datetime.now()
-       
-
-        textChanged = False
-
-        if textDispLangage == "ru-RU":
-            textChanged = True
-            current_text = cyrtranslit.to_latin(current_text, "ru")
-        elif textDispLangage == "uk-UA":
-            textChanged = True
-            current_text = cyrtranslit.to_latin(current_text, "ua")
-        elif strip_dialect(textDispLangage) == "ja":
-            textChanged = True
-            kks = pykakasi.kakasi()
-            conv = kks.convert(current_text)
-            current_text = ' '.join([part['hepburn'] for part in conv])
-        elif not current_text.isascii():
-            textChanged = True
-            current_text = unidecode.unidecode_expect_nonascii(current_text)
-
-        if textChanged:
-            print("[ProcessThread] Converted to ascii:", current_text)
 
         client.send_message("/chatbox/input", [current_text, True])
 
@@ -263,8 +260,12 @@ def main():
     cfgfile = f"{os.path.dirname(os.path.realpath(__file__))}/Config.yml"
     if os.path.exists(cfgfile):
         print("[VRCSubs] Loading config from", cfgfile)
+        new_config = None
         with open(cfgfile, 'r') as f:
-            config = load(f, Loader=Loader)
+            new_config = load(f, Loader=Loader)
+        if new_config is not None:
+            for key in new_config:
+                config[key] = new_config[key]
 
     # Start threads
     pst = threading.Thread(target=process_sound)

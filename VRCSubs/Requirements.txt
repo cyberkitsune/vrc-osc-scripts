@@ -1,10 +1,9 @@
 pyaudio
-SpeechRecognition
+https://github.com/cyberkitsune/speech_recognition/archive/refs/heads/vrcsubs-edits.zip
 python-osc
-cyrtranslit
-unidecode
 pyyaml
 googletrans==4.0.0rc1
-pykakasi
+deepl
+vosk
 pythonnet
 git+https://github.com/cyberkitsune/tinyoscquery.git

@@ -10,8 +10,29 @@ OSCControlPort: 9001
 # Change this to your language if you don't want to speak English. Uses ISO language codes (see http://www.lingoes.net/en/translator/langcode.htm), e.g. en-US, fr-FR, uk-UA
 CapturedLanguage: "en-US"
 
+# For speech to text, what engine should be used? The options are:
+# "Google" - The default, fairly accurate, but uses the Google API to transcribe, so it may take some time, and may be blocked in some places.
+# "Vosk"   - An offline open-source option. Less accurate, and requires a model to be downloaded. However, it may be faster and work regardless of location.
+#            You can download vosk models here: https://alphacephei.com/vosk/models
+TranscriptionMethod: "Google"
+
+# Rate limit for the transcriber between chat boxes (in ms) -- For example "1500" will wait to ensure a message isn't sent again within 1.5 seconds.
+# /!\ Setting this below 1000 will result in VRChat muting you for 60 seconds if you talk for a little bit!!
+TranscriptionRateLimit: 1200
+
 # If you wish your chat to be translated (very beta feature!) set this to true.
 EnableTranslation: false
+
+# For message translation, specify what translation engine to use. The options are:
+# "Google" - The default, free
+# "DeepL"  - More accurate then Google Translate, but supports fewer langugages. It requires a token. (see below)
+#            List of supported languages by DeepL: https://www.deepl.com/ja/docs-api/translate-text/translate-text/
+TranslateMethod: "Google"
+
+# If your translation service requires a token, specify it here.
+# For "Google" - No token required, leave as ""
+# For "DeepL"  - You need to register at DeepL and get the API https://www.deepl.com/ja/account/summary
+TranslateToken: ""
 
 # If EnableTranslation is true, set this to the language you wish to translate your speech to. Not all languages are supported.
 # /!\ Warning: VRChat does not support non-latin characters over OSC so langages that use non-latin characters will be converted.

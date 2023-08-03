@@ -1,5 +1,27 @@
 # Configure what is shown while you're listening to a song. Use {song_artist}, {song_title}, and {song_position} as placeholders.
-DisplayFormat: "( NP: {song_artist} - {song_title}{song_position} )"
+DisplayFormat: "( ▶️ {song_artist} - {song_title}{song_position} )"
 
 # Configure what is shown when you pause media.
-PausedFormat: "( Playback Paused )"
+PausedFormat: "( ⏸️ Playback Paused )"
+
+# If you only want the np box to show on track change, set this to true.
+OnlyShowOnChange: false
+
+# Use the below settings if you want to have VRCNowPlaying simply read a text file instead of automatically finding the song info.
+# If you use this, the above settings will be ignored!
+
+# Set this to true to use the textfile feature
+UseTextFile: false
+
+# Set this to the path on your computer that you wish to watch. 
+# PLEASE USE DOUBLE BACKSLASHES (or single forward slashes) OR THIS WILL FAIL!!!
+#
+# Example:
+#       ❌ "C:\Users\Example\np.txt" (BAD)
+#       ✅ "C:\\Users\\Example\\np.txt" (GOOD)
+#       ✅ "C:/Users/Example/np.txt" (Also ok)
+TextFileLocation: "C:\\Users\\Example\\Now_Playing.txt"
+
+# By default, if the text file does not change, VRCNowPlaying won't display it. 
+# If you set this to true, the text file will be displayed all the time!
+TextFileUpdateAlways: false
