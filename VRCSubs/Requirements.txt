@@ -5,5 +5,4 @@ pyyaml
 googletrans==4.0.0rc1
 deepl
 vosk
-pythonnet
 https://github.com/cyberkitsune/tinyoscquery/archive/refs/tags/0.1.2.zip
