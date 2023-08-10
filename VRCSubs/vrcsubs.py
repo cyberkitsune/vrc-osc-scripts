@@ -33,8 +33,7 @@ config = {
     "TranslateTo": "en-US", 
     'AllowOSCControl': True, 
     'Pause': False, 
-    'TranslateInterumResults': True, 
-    'OSCControlPort': 9001
+    'TranslateInterumResults': True,
     }
 state = {'selfMuted': False}
 state_lock = threading.Lock()
