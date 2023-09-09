@@ -234,9 +234,13 @@ class OSCServer():
         
         if service is not None:
             oscq = OSCQueryClient(service)
-            node = oscq.query_node("/avatar/parameters/MuteSelf")
+            mute_self_node = oscq.query_node("/avatar/parameters/MuteSelf")
             
-            set_state('selfMuted', node.value[0])
+            # For safety, let's check if selfMuted actually exists (like below) before calling this
+            # Some people on discord have this return None sometimes, maybe before VRC inits OSCQ?
+            # May warrant further investigation...
+            if mute_self_node is not None:
+                set_state('selfMuted', mute_self_node.value[0])
 
             for key in config.keys():
                 n = oscq.query_node(f"/avatar/parameters/vrcsub-{key}")
