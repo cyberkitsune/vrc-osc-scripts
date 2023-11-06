@@ -174,9 +174,11 @@ def main():
                 print("[VRCNowPlaying]", current_song_string)
             if send_to_vrc:
                 client.send_message("/chatbox/input", [current_song_string, True, False])
+                client.send_message("/avatar/parameters/VRCNP-Playing", True)
             lastPaused = False
         elif current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED and not lastPaused:
             client.send_message("/chatbox/input", [config['PausedFormat'], True, False])
+            client.send_message("/avatar/parameters/VRCNP-Playing", False)
             print("[VRCNowPlaying]", config['PausedFormat'])
             last_displayed_song = ("", "")
             lastPaused = True
