@@ -1,6 +1,11 @@
 import threading, os, glob, time, re
 
-BLACKLISTED_WORLDS = {"wrld_b2d9f284-3a77-4a8a-a58e-f8427f87ba79": "Club Orion"}
+# Would be even cooler if we could just base this on tags, but that requires API, so oh well.
+BLACKLISTED_WORLDS = {"wrld_b2d9f284-3a77-4a8a-a58e-f8427f87ba79": "Club Orion",
+                      "wrld_23c9382b-24cd-4f4f-8f79-22900e93bc4e": "The Foundry Nightclub",
+                      "wrld_33f38b4f-7f63-492e-93bb-801eb00fcaa7": "Poe's Nightclub",
+                      "wrld_3ada5619-779c-41c3-b673-d5f842e19b2e": "Poe's Frightclub",
+                      }
 
 class NowPlayingWorldBlacklist():
     def __init__(self):
