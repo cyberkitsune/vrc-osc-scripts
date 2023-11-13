@@ -26,7 +26,6 @@ class NowPlayingWorldBlacklist():
         while self._running:
             # First, check if we're a new logfile. If we are, let's parse it and catch up.
             if self._last_logfile != self._get_latest_logfile():
-                print(f"[Blacklist] New logfile! {self._get_latest_logfile()}")
                 if self._file is not None:
                     self._file.close()
                 self._last_logfile = self._get_latest_logfile()
@@ -56,7 +55,6 @@ class NowPlayingWorldBlacklist():
         r = re.findall(r'Fetching world information for (wrld_.*)', line)
         if len(r) > 0:
            if self._last_world != r[0]:
-                print(f"[Blacklist] New world: {r[0]}")
                 self._last_world = r[0]
 
     def is_current_blacklisted(self):
