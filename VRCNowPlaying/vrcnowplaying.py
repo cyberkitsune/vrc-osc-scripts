@@ -116,6 +116,10 @@ def main():
             if new_config is not None:
                 for key in new_config:
                     config[key] = new_config[key]
+    # Start world monitoring
+    import blacklist
+    blist = blacklist.NowPlayingWorldBlacklist()
+    was_last_blacklisted = False
     print("[VRCNowPlaying] VRCNowPlaying is now running")
     lastPaused = False
     client = udp_client.SimpleUDPClient("127.0.0.1", 9000)
@@ -164,6 +168,15 @@ def main():
 
         current_song_string = config['DisplayFormat'].format(song_artist=song_artist, song_title=song_title, song_position=song_position)
 
+        # Process world blacklist
+        is_world_blacklist, blist_comment = blist.is_current_blacklisted()
+        if is_world_blacklist and not was_last_blacklisted:
+            was_last_blacklisted = True
+            print(f"[VRCNowPlaying] Not outputting chatbox as current world ({blist_comment}) does not allow NP chatboxes.")
+        
+        if not is_world_blacklist:
+            was_last_blacklisted = False
+        
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144]
         if current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
@@ -172,11 +185,13 @@ def main():
                 send_to_vrc = True
                 last_displayed_song = (song_artist, song_title)
                 print("[VRCNowPlaying]", current_song_string)
-            if send_to_vrc:
+            if send_to_vrc and not is_world_blacklist:
                 client.send_message("/chatbox/input", [current_song_string, True, False])
             lastPaused = False
         elif current_media_info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED and not lastPaused:
-            client.send_message("/chatbox/input", [config['PausedFormat'], True, False])
+            if not is_world_blacklist:
+                client.send_message("/chatbox/input", [config['PausedFormat'], True, False])
+            
             print("[VRCNowPlaying]", config['PausedFormat'])
             last_displayed_song = ("", "")
             lastPaused = True
